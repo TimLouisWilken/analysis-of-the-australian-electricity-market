@@ -1,0 +1,24 @@
+PHASE 2 TVECM SUMMARY
+==================================================
+Thresholds: gamma_L = -45.8039  gamma_U = 20.0215
+ECM lags: 4   HAC lags: 12
+Total obs: 52552
+  Regime 1 (N=5,253)
+  Regime 2 (N=42,042)
+  Regime 3 (N=5,257)
+
+Adjustment speeds (SA equation, alpha = ECT_{t-1}):
+  Regime 1: 0.2128  (p=0.1843)
+  Regime 2: 0.2494  (p=0.0000)
+  Regime 3: -0.3486  (p=0.0000)
+  Wald test (H0: alpha_1=alpha_2=alpha_3): F=29.9617  p=0.0000
+
+Battery discharge (SA equation, beta_dis):
+  Regime 1: 0.4446  (p=0.0033)
+  Regime 2: 0.0360  (p=0.0000)
+  Regime 3: 1.2008  (p=0.0019)
+
+Battery charging (SA equation, beta_chg):
+  Regime 1: -0.2192  (p=0.0002)
+  Regime 2: -0.0304  (p=0.0088)
+  Regime 3: -0.1613  (p=0.0553)

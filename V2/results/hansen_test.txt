@@ -1,0 +1,17 @@
+HANSEN SUP-F THRESHOLD TEST RESULTS
+=====================================
+Sup-F statistic      : 1545.2495
+Threshold est. γ̂     : -33.4308
+Bootstrap p-value    : 0.0560
+CV 10%               : 1355.2195
+CV  5%               : 1571.1034
+CV  1%               : 2086.6507
+SSR linear           : 3034539910.9097
+SSR threshold        : 2945365995.7194
+Variance reduction   : 2.94%
+Regime 1 obs         : 8219
+Regime 2 obs         : 44365
+Bootstrap N          : 999
+ECM lags             : 4
+Threshold trim       : [15%, 85%]
+Grid points          : 200

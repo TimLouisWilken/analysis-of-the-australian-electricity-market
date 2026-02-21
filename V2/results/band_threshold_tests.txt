@@ -1,0 +1,20 @@
+BAND THRESHOLD TEST RESULTS
+========================================
+
+Symmetric Band (|ECT| ≤ γ vs outer)
+  Sup-F       : 478.8114
+  p-value     : 0.0537
+  CV 5%       : 482.4461
+  Var red %   : 0.91%
+  AIC         : 725272.65
+  BIC         : 725450.05
+  γ̂           : 48.1732
+
+Two-Threshold Band (3 regimes: low/band/high)
+  Sup-F       : 1983.3482
+  p-value     : 0.0400
+  CV 5%       : 1911.0444
+  Var red %   : 3.77%
+  AIC         : 723751.93
+  BIC         : 724018.04
+  γ̂_L, γ̂_U   : -45.8039, 20.0215
