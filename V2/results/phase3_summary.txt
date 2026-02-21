@@ -1,0 +1,72 @@
+PHASE 3 COUNTERFACTUAL SUMMARY
+============================================================
+Estimation sample: 2023-01-01 03:30:00  to  2025-12-31 23:30:00
+Total half-hour periods: 52,549
+Sample length: 3.00 years
+
+1. MEAN BATTERY CONTRIBUTION TO Δsa ($/MWh) BY REGIME
+   Negative = batteries dampen prices (lower Δsa → lower level over time)
+------------------------------------------------------------
+   Regime 1 (N=5,253): mean = -1.4264  std = 2.5981  $/MWh
+   Regime 2 (N=42,040): mean = +0.0500  std = 1.7480  $/MWh
+   Regime 3 (N=5,256): mean = -5.5805  std = 8.8635  $/MWh
+   Full sample:        mean = -0.6608  $/MWh
+
+2. PRICE SPIKE REDUCTION  (threshold = $300/MWh)
+------------------------------------------------------------
+   Actual spikes:                         1,311  (2.49%)
+   Per-period counterfactual spikes:      1,381  (2.63%)
+   Marginal spike reduction by batteries: +70  periods (+0.13 pp)
+
+   Note on cumulative counterfactual (sa_CF):
+   The cumulative battery price reduction over the 3.0-year sample
+   totals -34723 $/MWh — i.e. SA prices would have been higher
+   by this integrated amount in the absence of batteries from day 1.
+   The per-period figure above is more interpretable for spike analysis.
+
+3. VOLATILITY  std(Δsa_actual) vs std(Δsa_CF)  [$/MWh]
+------------------------------------------------------------
+   std(Δsa_actual): 257.4623
+   std(Δsa_CF):     257.2992
+   Reduction:       +0.1631
+
+   By regime:
+   Regime 1: std(Δsa)=411.2501  std(Δsa_CF)=411.2721
+   Regime 2: std(Δsa)=78.6803  std(Δsa_CF)=78.6983
+   Regime 3: std(Δsa)=666.0595  std(Δsa_CF)=665.5632
+
+4. WELFARE ESTIMATE  (consumer surplus proxy)
+------------------------------------------------------------
+   Average SA demand:               1288.1 MW
+   Total welfare gain (sample):    $+32.49M
+   Annualised welfare gain:        $+10.83M / year
+   Note: positive = batteries lowered prices (consumer surplus gain)
+         negative = batteries raised prices  (net cost to consumers)
+
+5. MEAN BATTERY CONTRIBUTION BY HOUR OF DAY ($/MWh)
+------------------------------------------------------------
+    Hour    Mean contrib ($/MWh)  bar
+       0                 -0.6057  -
+       1                 -0.6737  -
+       2                 -0.5129  -
+       3                 -0.1771  
+       4                 +0.0685  
+       5                 -0.0806  
+       6                 -0.6729  -
+       7                 -1.1807  --
+       8                 -1.7566  ---
+       9                 -0.9353  -
+      10                 -0.1400  
+      11                 +0.3290  
+      12                 +0.6393  +
+      13                 +0.7444  +
+      14                 +0.5208  +
+      15                 +0.1624  
+      16                 -0.2730  
+      17                 -0.6060  -
+      18                 -1.3146  --
+      19                 -2.2050  ----
+      20                 -2.7838  -----
+      21                 -2.4103  ----
+      22                 -1.3568  --
+      23                 -0.6302  -

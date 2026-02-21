@@ -1,0 +1,30 @@
+PHASE 4 — IV/2SLS BATTERY EFFECT SUMMARY
+============================================================
+Instrument: SOC_12h_{t-1} = rolling 12h cumulative net charging (lagged 1 period)
+Relevance  corr(dis, SOC_12h): +0.2005
+Exclusion  corr(Δsa, SOC_12h): +0.0272
+
+First-stage partial F (endogenous var: battery_discharging_mw):
+  Regime 1: F = 65.93  (strong)
+  Regime 2: F = 180.99  (strong)
+  Regime 3: F = 22.99  (strong)
+
+Wu-Hausman endogeneity test:
+  Regime 1: t = -3.270  p = 0.0011  ***  → YES
+  Regime 2: t = -4.213  p = 0.0000  ***  → YES
+  Regime 3: t = 1.167  p = 0.2433    → no
+
+2SLS battery discharge coefficient (β_dis), SA equation:
+  Regime 1: β_dis = +1.2960  se = 0.1803  ***
+  Regime 2: β_dis = +0.2536  se = 0.0141  ***
+  Regime 3: β_dis = +0.2237  se = 0.3593  
+
+2SLS adjustment speed (α = ECT_lag), SA equation:
+  Regime 1: α = +0.2123  
+  Regime 2: α = +0.3002  ***
+  Regime 3: α = -0.3503  ***
+
+Coefficient comparison: Phase 2 (OLS) → Phase 3 (lagged) → Phase 4 (IV)
+  Regime 1: +0.4446***  →  +0.0034  →  +1.2960***
+  Regime 2: +0.0360***  →  -0.0288  →  +0.2536***
+  Regime 3: +1.2008***  →  -0.1944  →  +0.2237
