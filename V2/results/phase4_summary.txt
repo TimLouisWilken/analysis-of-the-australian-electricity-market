@@ -1,30 +1,37 @@
 PHASE 4 — IV/2SLS BATTERY EFFECT SUMMARY
 ============================================================
-Instrument: SOC_12h_{t-1} = rolling 12h cumulative net charging (lagged 1 period)
-Relevance  corr(dis, SOC_12h): +0.2005
-Exclusion  corr(Δsa, SOC_12h): +0.0272
+Primary instrument: SOC_norm = capacity-normalised 12h net charging (fraction), lagged 1
+Secondary: SOC_raw (MWh, lagged 1) — over-identified system for Sargan J-test
+Capacity: 275 → 1558 MWh (5.7× growth, 13 facilities)
+Relevance  corr(dis, SOC_norm): +0.1099
+Exclusion  corr(Δsa, SOC_norm): +0.0306
 
 First-stage partial F (endogenous var: battery_discharging_mw):
-  Regime 1: F = 65.93  (strong)
-  Regime 2: F = 180.99  (strong)
-  Regime 3: F = 22.99  (strong)
+  Regime 1: F = 6.70  (WEAK)
+  Regime 2: F = 129.58  (strong)
+  Regime 3: F = 20.01  (strong)
+
+Sargan J-test (H0: SOC_norm and SOC_raw both valid):
+  Regime 1: J = 2.4752  p = 0.1157    → instruments consistent
+  Regime 2: J = 24.1143  p = 0.0000  ***  → INCONSISTENT ⚠
+  Regime 3: J = 0.0328  p = 0.8563    → instruments consistent
 
 Wu-Hausman endogeneity test:
-  Regime 1: t = -3.270  p = 0.0011  ***  → YES
-  Regime 2: t = -4.213  p = 0.0000  ***  → YES
-  Regime 3: t = 1.167  p = 0.2433    → no
+  Regime 1: t = -2.159  p = 0.0309  **  → YES
+  Regime 2: t = -4.120  p = 0.0000  ***  → YES
+  Regime 3: t = 0.493  p = 0.6219    → no
 
 2SLS battery discharge coefficient (β_dis), SA equation:
-  Regime 1: β_dis = +1.2960  se = 0.1803  ***
-  Regime 2: β_dis = +0.2536  se = 0.0141  ***
-  Regime 3: β_dis = +0.2237  se = 0.3593  
+  Regime 1: β_dis = +3.6409  se = 0.3493  ***
+  Regime 2: β_dis = +0.5574  se = 0.0274  ***
+  Regime 3: β_dis = +0.4877  se = 0.3619  
 
 2SLS adjustment speed (α = ECT_lag), SA equation:
-  Regime 1: α = +0.2123  
-  Regime 2: α = +0.3002  ***
-  Regime 3: α = -0.3503  ***
+  Regime 1: α = +0.2111  
+  Regime 2: α = +0.3708  ***
+  Regime 3: α = -0.3498  ***
 
 Coefficient comparison: Phase 2 (OLS) → Phase 3 (lagged) → Phase 4 (IV)
-  Regime 1: +0.4446***  →  +0.0034  →  +1.2960***
-  Regime 2: +0.0360***  →  -0.0288  →  +0.2536***
-  Regime 3: +1.2008***  →  -0.1944  →  +0.2237
+  Regime 1: +0.4446***  →  +0.0034  →  +3.6409***
+  Regime 2: +0.0360***  →  -0.0288  →  +0.5574***
+  Regime 3: +1.2008***  →  -0.1944  →  +0.4877

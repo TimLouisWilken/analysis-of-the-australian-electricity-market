@@ -1,0 +1,4 @@
+regime,J_stat,p_value,df,stars,valid
+1,2.475231813939225,0.1156523906592333,1,,instruments consistent
+2,24.11429335345558,9.078394614808816e-07,1,***,INCONSISTENT ⚠
+3,0.03279260477815715,0.8562990647247746,1,,instruments consistent

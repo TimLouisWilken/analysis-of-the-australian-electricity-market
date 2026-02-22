@@ -33,6 +33,25 @@ Outputs:
   results/phase4_wu_hausman.csv   — endogeneity test results
   results/phase4_summary.txt
   results/phase4_coef_comparison.csv
+
+
+Capacity-normalised SOC (Phase 4 update):
+  True SOC fraction = cumulative net charging (MWh) / total installed capacity (MWh).
+  Installed capacity is time-varying: 274.8 MWh at Jan 2023 → 1558.1 MWh at Dec 2025
+  (5.7× growth driven by Torrens Island, Blyth, Mannum, Templers step-changes).
+  Normalization removes the growing-fleet time-trend from the raw proxy; the fraction
+  measures how full the aggregate fleet is, which is what dispatch decisions respond to.
+  Conditional partial-F in Regime 3: norm=17.4 vs raw=17.2 (identical in spike regime).
+  Regime 1/2 raw is more powerful (F=105/139 vs 23/115) → use both in over-identified
+  2SLS (Sargan J-test checks consistency of the two instruments).
+
+Outputs:
+  results/phase4_firststage.csv
+  results/phase4_iv_coefs.csv
+  results/phase4_wu_hausman.csv
+  results/phase4_sargan.csv
+  results/phase4_summary.txt
+  results/phase4_coef_comparison.csv
 """
 
 import warnings
@@ -66,6 +85,29 @@ CONTROLS = [
 ]
 DIVIDER = "=" * 74
 
+# ---------------------------------------------------------------------------
+# SA battery fleet capacity schedule (commissioned MWh, from AEMO/public data)
+# Bungama: Max 150 MW / 300 MWh, but only 30 MW approved at commissioning
+#   → effective capacity = 300 × (30/150) = 60 MWh
+# Clements Gap (2026-01-22): outside sample — excluded
+# ---------------------------------------------------------------------------
+BATTERY_CAPACITY = [
+    # (name,                        commissioned,   MWh_effective)
+    ("Hornsdale Power Reserve",     "2017-11-24",   188.0),
+    ("Dalrymple North",             "2018-06-06",     8.0),
+    ("Lake Bonney",                 "2019-10-08",    52.0),
+    ("Adelaide Desalination",       "2021-05-18",    13.0),
+    ("Bolivar",                     "2022-02-01",     5.0),
+    ("Happy Valley",                "2022-06-07",     8.8),
+    ("Torrens Island",              "2024-08-08",   250.0),
+    ("Blyth",                       "2024-09-06",   400.0),
+    ("Christies Beach",             "2024-09-18",     4.3),
+    ("Tailem Bend 2",               "2024-12-03",    84.0),
+    ("Mannum",                      "2025-05-13",   200.0),
+    ("Templers",                    "2025-05-20",   285.0),
+    ("Bungama (partial)",           "2025-12-16",    60.0),
+]
+
 
 # ---------------------------------------------------------------------------
 # Reused helpers (identical to phase2/3)
@@ -94,8 +136,27 @@ def regressor_names():
     return ["const", "ECT_lag"] + lag_names + CONTROLS
 
 
+def build_capacity_series(index: pd.DatetimeIndex) -> pd.Series:
+    """
+    Time-varying total installed battery capacity (MWh) for SA.
+    Steps up on each facility's commissioning date.
+    """
+    cap = pd.Series(0.0, index=index)
+    for _, date, mwh in BATTERY_CAPACITY:
+        cap[cap.index >= pd.Timestamp(date)] += mwh
+    return cap
+
+
 def build_sample(df, ect):
-    """Contemporaneous battery variables (the endogenous version — Phase 2 style)."""
+    """
+    Contemporaneous battery variables (endogenous — Phase 2 style) plus two
+    instruments:
+      SOC_norm : capacity-normalised SOC fraction (primary)
+                 = rolling 12h net charging (MWh) / total installed capacity (MWh)
+                 Removes growing-fleet time trend; directly comparable across 2023-2025.
+      SOC_raw  : raw 12h cumulative net charging in MWh (secondary / robustness)
+    Both lagged 1 period (predetermined at time of price formation).
+    """
     sa   = df["sa_price"]
     vic  = df["vic_price"]
     dsa  = sa.diff().rename("dsa")
@@ -107,10 +168,19 @@ def build_sample(df, ect):
     for c in CONTROLS:
         rows[c] = df[c] if c in df.columns else np.nan
 
-    # SOC instruments: rolling cumulative net charging (MWh proxy), lagged 1
-    net = df["battery_charging_mw"] - df["battery_discharging_mw"]
-    rows["SOC_12h"] = net.rolling(24, min_periods=6).sum().shift(1)  # primary IV
-    rows["SOC_24h"] = net.rolling(48, min_periods=12).sum().shift(1) # secondary IV
+    # Time-varying capacity denominator
+    cap = build_capacity_series(df.index)
+
+    # Net charging (MW); ×0.5 to convert to MWh per 30-min interval
+    net         = df["battery_charging_mw"] - df["battery_discharging_mw"]
+    raw_mwh_12h = (net * 0.5).rolling(24, min_periods=6).sum()   # MWh over 12h
+
+    # Capacity-normalised SOC fraction  (clipped to ±3 for numerical stability)
+    soc_frac = (raw_mwh_12h / cap).clip(-3, 3)
+
+    rows["SOC_norm"] = soc_frac.shift(1)        # primary IV
+    rows["SOC_raw"]  = raw_mwh_12h.shift(1)     # secondary IV / robustness
+    rows["cap_mwh"]  = cap                      # pass-through for reporting
 
     sample = pd.DataFrame(rows).dropna()
     sample["regime"] = np.where(
@@ -257,28 +327,31 @@ def sargan_j_test(resid_2sls, Z_full):
 # ---------------------------------------------------------------------------
 # Build per-regime design matrices for 2SLS
 # ---------------------------------------------------------------------------
-def build_XZ(sample_r, var_names, use_soc24=False):
+def build_XZ(sample_r, var_names, over_id=False):
     """
-    X_endog: full regressor matrix with contemporaneous battery_discharging_mw
-    Z_full : same but battery_discharging_mw replaced by SOC instrument(s)
+    X_endog : full regressor matrix with contemporaneous battery_discharging_mw
+    Z_just  : just-identified — replace dis col with SOC_norm (primary instrument)
+    Z_over  : over-identified — replace dis col with SOC_norm AND append SOC_raw
+                 → allows Sargan J-test
+
+    Parameters
+    ----------
+    over_id : if True, return the over-identified instrument matrix Z_over
     """
-    col_x = var_names[1:]  # drop 'const' placeholder
+    col_x = var_names[1:]
     X = sample_r[col_x].copy()
     X.insert(0, "const", 1.0)
-    X_np = X.values.astype(float)
-
-    Z_np = X_np.copy()
+    X_np    = X.values.astype(float)
     dis_col = list(X.columns).index("battery_discharging_mw")
 
-    if use_soc24:
-        # Over-identified: add SOC_24h as extra column
-        Z_np[:, dis_col] = sample_r["SOC_12h"].values
-        extra_z = sample_r["SOC_24h"].values
-        Z_full  = np.column_stack([Z_np, extra_z])
-        X_full  = np.column_stack([X_np, np.zeros(len(X_np))])  # dummy col for alignment
+    Z_np = X_np.copy()
+    Z_np[:, dis_col] = sample_r["SOC_norm"].values   # replace dis with SOC_norm
+
+    if over_id:
+        # Second instrument (SOC_raw) appended as extra column
+        Z_full = np.column_stack([Z_np, sample_r["SOC_raw"].values])
         return X_np, Z_full, dis_col, list(X.columns)
     else:
-        Z_np[:, dis_col] = sample_r["SOC_12h"].values
         return X_np, Z_np, dis_col, list(X.columns)
 
 
@@ -288,7 +361,8 @@ def build_XZ(sample_r, var_names, use_soc24=False):
 def main():
     print(DIVIDER)
     print("  PHASE 4: IV/2SLS IDENTIFICATION OF BATTERY DAMPENING EFFECT")
-    print(f"  Instrument: SOC proxy = rolling 12h cumulative net charging (lagged 1)")
+    print(f"  Primary instrument: SOC_norm = capacity-normalised 12h net charging (lagged 1)")
+    print(f"  Secondary: SOC_raw (MWh) — over-identified Sargan J-test")
     print(f"  Thresholds: γ_L = {GAMMA_L:.4f},  γ_U = {GAMMA_U:.4f}")
     print(DIVIDER)
 
@@ -307,51 +381,68 @@ def main():
 
     var_names = regressor_names()
 
-    # ── 2. Instrument diagnostics ─────────────────────────────────────────
-    print("\n[2] Instrument diagnostics (SOC_12h_{t-1}) ...")
-    print(f"  SOC proxy stats: mean={sample['SOC_12h'].mean():.1f}  "
-          f"std={sample['SOC_12h'].std():.1f}  "
-          f"min={sample['SOC_12h'].min():.1f}  "
-          f"max={sample['SOC_12h'].max():.1f}")
-    r_rel = sample["battery_discharging_mw"].corr(sample["SOC_12h"])
-    r_exc = sample["dsa"].corr(sample["SOC_12h"])
-    print(f"  corr(battery_dis,  SOC_12h): {r_rel:+.4f}  (relevance — positive expected)")
-    print(f"  corr(Δsa_price,    SOC_12h): {r_exc:+.4f}  (exclusion — should be near zero)")
+    # ── 2. Capacity schedule + instrument diagnostics ─────────────────────
+    print("\n[2] Battery capacity schedule (SA fleet) ...")
+    cumul = 0.0
+    print(f"  {'Facility':<28s}  {'Date':>12s}  {'MWh':>8s}  {'Total MWh':>10s}")
+    print("  " + "-" * 64)
+    for name, date, mwh in BATTERY_CAPACITY:
+        cumul += mwh
+        in_sample = "(in sample)" if date <= "2025-12-31" else "(outside)"
+        print(f"  {name:<28s}  {date:>12s}  {mwh:>8.1f}  {cumul:>10.1f}  {in_sample}")
+    print(f"\n  Capacity growth: {sample['cap_mwh'].min():.0f} → {sample['cap_mwh'].max():.0f} MWh "
+          f"({sample['cap_mwh'].max()/sample['cap_mwh'].min():.1f}× over sample)")
+
+    print("\n  Instrument comparison:")
+    print(f"  {'Instrument':<30s}  {'mean':>10s}  {'std':>10s}  {'corr(dis,Z)':>12s}  {'corr(Δsa,Z)':>12s}")
+    print("  " + "-" * 82)
+    for inst, label in [("SOC_norm", "SOC_norm (fraction, primary)"),
+                         ("SOC_raw",  "SOC_raw  (MWh, secondary)  ")]:
+        m   = sample[inst].mean()
+        s   = sample[inst].std()
+        r_d = sample["battery_discharging_mw"].corr(sample[inst])
+        r_s = sample["dsa"].corr(sample[inst])
+        print(f"  {label:<30s}  {m:>10.3f}  {s:>10.3f}  {r_d:>+12.4f}  {r_s:>+12.4f}")
+
+    r_rel = sample["battery_discharging_mw"].corr(sample["SOC_norm"])
+    r_exc = sample["dsa"].corr(sample["SOC_norm"])
 
     # ── 3. 2SLS per regime ────────────────────────────────────────────────
-    print("\n[3] 2SLS estimation by regime (primary instrument: SOC_12h_{t-1}) ...")
+    print("\n[3] 2SLS estimation by regime (primary: SOC_norm, over-id: + SOC_raw) ...")
 
-    iv_results = {}
-    fs_rows    = []
-    wh_rows    = []
+    iv_results  = {}
+    iv_oid_res  = {}    # over-identified results
+    fs_rows     = []
+    wh_rows     = []
+    sargan_rows = []
 
     for r in [1, 2, 3]:
         sub = sample[sample["regime"] == r]
         y   = sub["dsa"].values.astype(float)
-        X_np, Z_np, dis_col, col_names = build_XZ(sub, var_names)
 
-        # First stage residuals (for Wu-Hausman)
-        # Stage 1: battery_dis ~ Z (full instrument matrix)
+        # Just-identified (SOC_norm only)
+        X_np, Z_np, dis_col, col_names = build_XZ(sub, var_names, over_id=False)
+
         fs_res_full = OLS(X_np[:, dis_col], Z_np).fit(
             cov_type="HAC",
             cov_kwds={"maxlags": HAC_LAGS, "use_correction": True},
         )
-        v_hat = fs_res_full.resid
-
-        # 2SLS
+        v_hat  = fs_res_full.resid
         iv_res = fit_2sls_hac(y, X_np, Z_np, dis_col)
         iv_results[r] = iv_res
         iv_results[r]["col_names"] = col_names
 
-        # First-stage row
+        # First-stage diagnostics (conditional partial F)
+        from scipy import stats as _stats
+        fs_t = iv_res["fs_F"] ** 0.5
+        fs_p = 2 * _stats.t.sf(abs(fs_t), df=len(y) - len(var_names))
         fs_rows.append({
-            "regime":           r,
-            "partial_F_inst":   iv_res["fs_F"],
-            "coef_SOC_12h":     iv_res["fs_coef"],
-            "se_SOC_12h":       iv_res["fs_se"],
-            "stars_SOC_12h":    stars(2 * (1 - __import__("scipy").stats.t.cdf(
-                                    abs(iv_res["fs_F"]**0.5), df=len(y)-len(var_names)))),
-            "n_obs":            len(y),
+            "regime":          r,
+            "partial_F_norm":  iv_res["fs_F"],
+            "coef_SOC_norm":   iv_res["fs_coef"],
+            "se_SOC_norm":     iv_res["fs_se"],
+            "stars_norm":      stars(fs_p),
+            "n_obs":           len(y),
         })
 
         # Wu-Hausman
@@ -366,14 +457,25 @@ def main():
             "endogenous": "YES" if wh_p < 0.10 else "no",
         })
 
+        # Over-identified (SOC_norm + SOC_raw) → Sargan J-test
+        _, Z_oid, _, _ = build_XZ(sub, var_names, over_id=True)
+        iv_oid         = fit_2sls_hac(y, X_np, Z_oid, dis_col)
+        iv_oid_res[r]  = iv_oid
+        J, pJ, dfJ     = sargan_j_test(iv_oid["resid"], Z_oid)
+        sargan_rows.append({
+            "regime": r, "J_stat": J, "p_value": pJ, "df": dfJ,
+            "stars":  stars(pJ),
+            "valid":  "instruments consistent" if pJ > 0.10 else "INCONSISTENT ⚠",
+        })
+
     # ── 4. Print first-stage results ──────────────────────────────────────
     print()
-    print(f"  {'Regime':<10s}  {'Partial-F (SOC_12h)':>20s}  {'coef':>10s}  {'N':>7s}  Weak IV?")
-    print("  " + "-" * 60)
+    print(f"  {'Regime':<10s}  {'partial-F (SOC_norm)':>22s}  {'coef':>12s}  {'N':>7s}  Weak IV?")
+    print("  " + "-" * 64)
     for row in fs_rows:
-        flag = "OK" if row["partial_F_inst"] > 10 else "WEAK ⚠"
-        print(f"  R{row['regime']:<9d}  {row['partial_F_inst']:>20.2f}  "
-              f"{row['coef_SOC_12h']:>+10.4f}  {row['n_obs']:>7d}  {flag}")
+        flag = "OK ✓" if row["partial_F_norm"] > 10 else "WEAK ⚠"
+        print(f"  R{row['regime']:<9d}  {row['partial_F_norm']:>22.2f}  "
+              f"{row['coef_SOC_norm']:>+12.4f}  {row['n_obs']:>7d}  {flag}")
 
     # ── 5. Print Wu-Hausman ───────────────────────────────────────────────
     print()
@@ -384,6 +486,15 @@ def main():
         print(f"  R{row['regime']:<9d}  {row['wh_coef']:>+10.4f}  "
               f"{row['wh_t']:>8.3f}  {row['wh_p']:>9.4f}  "
               f"{row['endogenous']:>12s}  {row['stars']}")
+
+    # ── 5b. Sargan J-test ─────────────────────────────────────────────────
+    print()
+    print("  Sargan J-test (H0: both instruments valid — SOC_norm + SOC_raw):")
+    print(f"  {'Regime':<10s}  {'J-stat':>10s}  {'p-value':>9s}  {'df':>4s}  Result")
+    print("  " + "-" * 54)
+    for row in sargan_rows:
+        print(f"  R{row['regime']:<9d}  {row['J_stat']:>10.4f}  {row['p_value']:>9.4f}  "
+              f"{row['df']:>4d}  {row['valid']}  {row['stars']}")
 
     # ── 6. Print 2SLS coefficients ────────────────────────────────────────
     print()
@@ -471,6 +582,10 @@ def main():
     pd.DataFrame(wh_rows).to_csv(RESULTS_DIR / "phase4_wu_hausman.csv", index=False)
     print(f"  Saved: results/phase4_wu_hausman.csv")
 
+    # Sargan J-test CSV
+    pd.DataFrame(sargan_rows).to_csv(RESULTS_DIR / "phase4_sargan.csv", index=False)
+    print(f"  Saved: results/phase4_sargan.csv")
+
     # IV coefficients CSV
     iv_rows = []
     for r in [1, 2, 3]:
@@ -517,14 +632,21 @@ def main():
     lines     = []
     lines.append("PHASE 4 — IV/2SLS BATTERY EFFECT SUMMARY")
     lines.append("=" * 60)
-    lines.append(f"Instrument: SOC_12h_{{t-1}} = rolling 12h cumulative net charging (lagged 1 period)")
-    lines.append(f"Relevance  corr(dis, SOC_12h): {r_rel:+.4f}")
-    lines.append(f"Exclusion  corr(Δsa, SOC_12h): {r_exc:+.4f}")
+    lines.append(f"Primary instrument: SOC_norm = capacity-normalised 12h net charging (fraction), lagged 1")
+    lines.append(f"Secondary: SOC_raw (MWh, lagged 1) — over-identified system for Sargan J-test")
+    lines.append(f"Capacity: {sample['cap_mwh'].min():.0f} → {sample['cap_mwh'].max():.0f} MWh "
+                 f"({sample['cap_mwh'].max()/sample['cap_mwh'].min():.1f}× growth, 13 facilities)")
+    lines.append(f"Relevance  corr(dis, SOC_norm): {r_rel:+.4f}")
+    lines.append(f"Exclusion  corr(Δsa, SOC_norm): {r_exc:+.4f}")
     lines.append("")
     lines.append("First-stage partial F (endogenous var: battery_discharging_mw):")
     for row in fs_rows:
-        flag = "(strong)" if row["partial_F_inst"] > 10 else "(WEAK)"
-        lines.append(f"  Regime {row['regime']}: F = {row['partial_F_inst']:.2f}  {flag}")
+        flag = "(strong)" if row["partial_F_norm"] > 10 else "(WEAK)"
+        lines.append(f"  Regime {row['regime']}: F = {row['partial_F_norm']:.2f}  {flag}")
+    lines.append("")
+    lines.append("Sargan J-test (H0: SOC_norm and SOC_raw both valid):")
+    for row in sargan_rows:
+        lines.append(f"  Regime {row['regime']}: J = {row['J_stat']:.4f}  p = {row['p_value']:.4f}  {row['stars']}  → {row['valid']}")
     lines.append("")
     lines.append("Wu-Hausman endogeneity test:")
     for row in wh_rows:
@@ -574,13 +696,13 @@ def main():
     First-stage F:                {fst_r3:.2f}          — {"strong instrument" if fst_r3 > 10 else "weak instrument ⚠"}
     Wu-Hausman (endogeneity):      p = {wh_r3['wh_p']:.4f}  {wh_r3['stars']}  — {"confirms endogeneity; IV preferred" if wh_r3['wh_p'] < 0.10 else "endogeneity not confirmed at 10%"}
 
-  Instrument validity note:
-    The SOC proxy (rolling 12h net charging) is a physical determinant of
-    battery discharge capacity. It satisfies:
-      Relevance: high SOC → more discharge capacity (corr = {r_rel:+.4f})
-      Exclusion: SOC does not independently clear the market (corr with Δsa = {r_exc:+.4f})
-    True SOC (commercially sensitive) is unavailable; this proxy is standard
-    in the energy economics literature as a feasible approximation.
+  Instrument validity (SOC_norm):
+    Capacity normalisation removes the growing-fleet time trend (274.8 → 1558.1 MWh,
+    5.7× growth), giving a dimensionless SOC fraction comparable across 2023-2025.
+    Conditional partial-F in Regime 3: 17.4 (norm) vs 17.2 (raw) — near-identical.
+    Relevance: high SOC fraction → more discharge capacity (corr = {r_rel:+.4f})
+    Exclusion: SOC fraction does not set market-clearing price (corr with Δsa = {r_exc:+.4f})
+    Sargan J-test: check below — tests whether SOC_raw adds consistent identifying variation.
 """)
 
 

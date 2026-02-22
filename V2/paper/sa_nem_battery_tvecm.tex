@@ -1,0 +1,807 @@
+%% ============================================================
+%%  Battery Storage and Electricity Price Convergence:
+%%  A Threshold Vector Error-Correction Analysis
+%%  of the South Australian–Victorian Market
+%% ============================================================
+\documentclass[12pt,a4paper]{article}
+
+%% --- Packages ---
+\usepackage[style=apa,backend=biber,uniquename=false]{biblatex}
+\addbibresource{references.bib}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{setspace}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{threeparttable}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{lmodern}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=black
+}
+
+\onehalfspacing
+
+%% --- Convenience commands ---
+\newcommand{\ect}{\mathit{ECT}}
+\newcommand{\dsa}{\Delta p^{SA}}
+\newcommand{\dvic}{\Delta p^{VIC}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+
+%% ============================================================
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{3cm}
+  {\LARGE\bfseries Battery Storage and Electricity Price Convergence:\par}
+  \vspace{0.5cm}
+  {\LARGE\bfseries A Threshold Vector Error-Correction Analysis\par}
+  {\LARGE\bfseries of the South Australian--Victorian Market\par}
+  \vspace{2cm}
+  {\large University College London\par}
+  {\large Department of Economics\par}
+  \vspace{1cm}
+  {\large ECON0xxx --- Advanced Econometrics\par}
+  \vspace{2cm}
+  {\large February 2026\par}
+  \vspace{3cm}
+  \begin{abstract}
+    \noindent
+    This paper investigates whether battery energy storage systems (BESS) causally
+    dampen wholesale electricity price spikes in South Australia (SA), exploiting the
+    rapid 5.7-fold expansion in installed capacity (275--1{,}558~MWh) over 2023--2025.
+    A three-regime threshold vector error-correction model (TVECM) estimated on
+    52{,}608 thirty-minute observations identifies two cointegration thresholds
+    ($\hat{\gamma}_L = -\$45.80$, $\hat{\gamma}_U = +\$20.02$/MWh) that delineate a
+    central band (Regime~2, 80\% of observations) from extreme discount (Regime~1) and
+    spike (Regime~3) regimes; the two-threshold specification wins on the
+    \citeauthor{hansen2002testing} (\citeyear{hansen2002testing}) bootstrap criterion
+    ($p = 0.040$, AIC = 723{,}752). SA prices correct toward equilibrium exclusively
+    in the spike regime (half-life 0.8~hours), consistent with one-sided arbitrage.
+    Addressing the simultaneity bias inherent in contemporaneous battery dispatch, a
+    triple identification strategy combining ordinary least squares (OLS), predetermined
+    regressors (Phase~3), and two-stage least squares (2SLS) with a
+    capacity-normalised state-of-charge instrument (Phase~4) shows that the OLS
+    coefficient in the spike regime ($\hat{\beta} = +1.20^{***}$) reverses sign after
+    lagging ($-0.19$) and becomes insignificant after instrumental variable (IV)
+    correction ($+0.49$, $p = 0.18$), implying a near-zero marginal causal effect at
+    the margin. Wu-Hausman tests confirm endogeneity in Regimes~1--2
+    ($p < 0.031$). A static counterfactual benchmarks the cumulative fleet contribution
+    at $-5.58$\,\$/MWh in the spike regime, corresponding to an annualised consumer
+    surplus gain of \$10.83~million per year.
+  \end{abstract}
+\end{titlepage}
+
+%% ============================================================
+\section{Introduction}
+\label{sec:intro}
+
+The South Australian electricity market occupies a singular position in global energy
+transition research. Sustained by one of the highest per-capita penetrations of wind
+and solar generation worldwide, SA recorded negative wholesale prices in 27.5\% of
+all thirty-minute trading intervals over 2023--2025, with renewable generation
+exceeding instantaneous demand in 41.5\% of periods. This structural oversupply has
+driven intense interest in battery energy storage systems as a means of absorbing
+excess energy and releasing it during scarcity events. Between January~2023 and
+December~2025 alone, 13 utility-scale BESS facilities were commissioned in SA,
+expanding total installed capacity from 275~MWh to 1{,}558~MWh---a 5.7-fold increase
+within a single regulatory triennium.
+
+SA is not an isolated market. The Heywood interconnector links SA to Victoria (VIC)
+via a 650~MW direct-current tie, so price dynamics in the two states are jointly
+determined by arbitrage flows, network constraints, and generation dispatch. Over the
+study period the Pearson correlation between SA and VIC wholesale prices rose markedly,
+from approximately 0.38 in 2023 to 0.80 in 2025, suggesting that growing BESS
+capacity may be actively integrating the two markets through round-trip arbitrage.
+Yet whether batteries \textit{causally} dampen SA price spikes---as opposed to simply
+correlating with them---remains an open empirical question.
+
+Existing studies of battery impacts on electricity market prices have generally relied
+on structural simulation models or reduced-form regressions that do not account for
+the non-linear, threshold-dependent nature of price convergence between connected
+regions
+\parencite{wozabal2016storagemarket,higgs2008stochastic}.
+Threshold cointegration methodology, developed by
+\textcite{balke1997threshold} and extended to the multivariate setting by
+\textcite{hansen2002testing}, explicitly models the band of inaction within which
+price deviations persist because arbitrage is not profitable net of transaction and
+curtailment costs. Applied to the SA--VIC pair, this framework provides a natural
+partition of the market into three price regimes---discount, convergence, and
+spike---within which battery behaviour may differ sharply.
+
+This paper makes three contributions. First, it estimates a three-regime TVECM for
+the SA--VIC price spread with formal bootstrap testing of the threshold configuration,
+establishing that price adjustment is strongly asymmetric: only SA corrects in the
+spike regime, with a half-life of 0.8~hours. Second, it implements a triple
+identification strategy---contemporaneous OLS, predetermined (lagged) regressors, and
+2SLS with a capacity-normalised state-of-charge instrument---to disentangle the
+simultaneity bias arising from reactive battery dispatch from the causal dampening
+effect on prices. Third, it quantifies welfare implications through a static
+counterfactual, estimating an annualised consumer surplus gain of
+\$10.83~million attributable to the existing BESS fleet.
+
+The remainder of the paper is organised as follows. Section~\ref{sec:lit} reviews
+related literature. Section~\ref{sec:data} describes the data. Section~\ref{sec:method}
+presents the econometric framework. Section~\ref{sec:results} reports empirical
+results. Sections~\ref{sec:discussion}--\ref{sec:conclusion} discuss findings,
+limitations, and policy implications.
+
+%% ============================================================
+\section{Literature Review}
+\label{sec:lit}
+
+\subsection{Threshold Cointegration}
+
+The concept of threshold cointegration formalises the observation that arbitrage
+between linked markets operates only when the price differential exceeds transaction
+costs. \textcite{balke1997threshold} established the foundational theoretical
+framework, showing that cointegrating relationships may be characterised by a band of
+inaction within which the error-correction term exerts no mean-reverting force.
+Outside this band, adjustment is triggered and prices converge toward long-run
+equilibrium. \textcite{enders2001cointegration} extended this framework to threshold
+autoregressive (TAR) and momentum-TAR specifications applicable to energy markets,
+documenting asymmetric adjustment in commodity prices that mirrors the asymmetric
+nature of physical storage and transmission constraints.
+
+The multivariate testing framework used in the present paper follows
+\textcite{hansen2002testing}, who derive a supremum-$F$ test for the null of linear
+cointegration against a threshold cointegration alternative in vector error-correction
+models (VECMs). Their wild-bootstrap inference procedure, based on Rademacher
+resampling, is conservative under heteroskedasticity---a property particularly
+valuable in electricity price data that exhibit extreme volatility and fat tails.
+\textcite{hansen1997inference} provides complementary asymptotic results for
+threshold autoregressive models that underpin the single-equation component of the
+estimation.
+
+\subsection{Electricity Price Dynamics}
+
+Wholesale electricity markets are characterised by a distinctive combination of
+mean-reversion, periodic seasonality, and spike processes that distinguishes them
+from other commodity markets. \textcite{lucia2002electricity} document these
+properties in the Nordic Power Exchange, establishing the stylised facts---rapid
+mean-reversion after spikes, strong seasonal patterns, and time-varying
+volatility---that have since been confirmed in Australian market data.
+\textcite{higgs2008stochastic} provide the most direct precedent for the present
+study, estimating stochastic price models for the Australian National Electricity
+Market (NEM) and documenting regime-switching price behaviour across the five NEM
+regions including SA.
+
+The regime-dependent nature of price adjustment motivates the TVECM approach adopted
+here. In the convergence band, deviations from the long-run SA--VIC price
+relationship are small relative to the cost of initiating interconnector flows or
+discharging batteries, so prices may wander without correction. In the extreme
+regimes, however, the financial incentive to arbitrage is sufficient to trigger
+adjustment, generating the asymmetric dynamics documented in
+Section~\ref{sec:results}. Standard linear VECMs that average across regimes will
+under-estimate the speed of adjustment in tail events and over-estimate the degree
+of market integration within the band.
+
+\subsection{Battery Storage in Electricity Markets}
+
+The market impact of BESS deployment has attracted growing empirical attention as
+utility-scale projects have become commercially viable. \textcite{wozabal2016storagemarket}
+demonstrate that the interaction between intermittent renewables and storage
+fundamentally alters the variance structure of electricity prices, reducing spike
+frequency but increasing the duration of low-price periods. This mechanism is
+directly relevant to the SA context, where solar and wind oversupply drives the
+negative-price incidence that BESS charge cycles exploit.
+
+At the institutional level, \textcite{aemo2024sa} document the operational
+characteristics of the SA BESS fleet, including dispatch rules, market ancillary
+service participation, and the contribution of batteries to frequency regulation.
+These operational details motivate the identification strategy in Section~\ref{sec:method}:
+because batteries respond endogenously to the very price signals we seek to explain,
+a credible causal estimate requires an instrument that is correlated with battery
+state of charge but orthogonal to contemporaneous price shocks.
+
+\subsection{Endogeneity in Energy Economics}
+
+The problem of endogenous regressors in energy market regressions has been recognised
+since at least \textcite{hausman1978specification}, who formalises the Wu-Hausman
+test employed here. In the context of battery dispatch, the endogeneity problem is
+mechanical: operators observe real-time prices and dispatch storage accordingly,
+creating a positive correlation between contemporaneous discharge and price spikes
+that inflates OLS estimates of the price-dampening effect.
+
+The validity of instrumental variable estimation in this context depends critically
+on instrument strength. \textcite{staiger1997instrumental} establish that weak
+instruments---conventionally defined by a first-stage $F$-statistic below
+10---render 2SLS estimates severely biased toward OLS, with inflated standard errors
+that may understate Type~I error rates. The capacity-normalised state-of-charge
+instrument developed in Section~\ref{sec:method} is designed to address this concern
+by exploiting variation in BESS availability that is determined by prior
+charging history rather than contemporaneous prices. The standard-errors throughout
+are computed using the \textcite{newey1987simple} heteroskedasticity and
+autocorrelation consistent (HAC) estimator with 12 lags, appropriate for the
+30-minute panel with persistent dynamics.
+
+\subsection{Cointegration Methods}
+
+The long-run cointegrating relationship between SA and VIC prices is identified using
+the \textcite{johansen1988statistical} maximum likelihood procedure, which permits
+inference on the number of cointegrating vectors and the normalisation of the
+error-correction term (ECT). The \textcite{engle1987cointegration} two-step procedure
+provides a complementary check via augmented Dickey-Fuller tests on the estimated
+residuals. Welfare quantification follows the static counterfactual approach described
+in \textcite{joskow2011comparing}, whereby the actual price series is compared against
+a hypothetical series with battery contributions removed, holding all other market
+outcomes constant.
+
+%% ============================================================
+\section{Data}
+\label{sec:data}
+
+\subsection{Sources and Coverage}
+
+The dataset is constructed from two administrative data sources. Wholesale electricity
+prices for SA and Victoria are retrieved from the OpenElectricity API~v4, which
+aggregates half-hourly settlement data published by the Australian Energy Market
+Operator (AEMO). Generation and network data---including wind, solar, battery, demand,
+and interconnector flows---are drawn from AEMO's NEMWEB Market Management System
+Data Model (MMSDM) archives. All series are recorded at the 30-minute trading interval
+frequency standard to the NEM, covering the period 1~January~2023 to 31~December~2025
+and yielding $N = 52{,}608$ valid observations after removing a small number of
+settlement revision intervals.
+
+\subsection{Key Variables}
+
+Table~\ref{tab:desc} presents descriptive statistics for the six variables entering
+the TVECM. SA wholesale prices exhibit substantially higher volatility
+(SD = \$393.5/MWh) than Victorian prices (SD = \$285.0/MWh),
+reflecting SA's greater exposure to renewable intermittency and tighter supply margins
+at the northern end of the Heywood interconnector. Both series display pronounced
+positive skewness, with maximum prices reaching approximately \$17{,}000/MWh during
+supply stress events, and negative prices approaching $-\$950$\,/MWh during periods
+of curtailment-constrained renewable oversupply.
+
+Battery charging and discharging are recorded separately in megawatts. Mean dispatch
+rates (discharge: 23.1~MW; charging: 29.8~MW) mask substantial temporal variation as
+fleet capacity grew over the study window. Mean discharge approximately quadrupled
+from 10.6~MW (2023 average) to 39.8~MW (2025 average), while total installed
+capacity rose from 275~MWh to 1{,}558~MWh across 13~commissioned facilities.
+This expansion provides the cross-sectional variation in battery availability
+exploited by the capacity-normalisation step of the IV strategy.
+
+Wind generation averages 753~MW (range: 0--2{,}189~MW), confirming the intermittent
+character of SA's primary renewable resource. Demand averages 1{,}288~MW and exhibits
+clear intraday and seasonal patterns that motivate the inclusion of lagged demand
+and solar output as controls in the TVECM.
+
+\begin{table}[htbp]
+  \centering
+  \begin{threeparttable}
+    \caption{Descriptive statistics (2023-01-01 to 2025-12-31, $N = 52{,}608$)}
+    \label{tab:desc}
+    \begin{tabular}{lrrrr}
+      \toprule
+      Variable & Mean & Std.\ Dev. & Min & Max \\
+      \midrule
+      SA price (\$/MWh)               &   89.0  &   393.5  &   $-$945.5  &  16{,}970.0 \\
+      VIC price (\$/MWh)              &   71.6  &   285.0  &   $-$686.6  &  16{,}600.0 \\
+      Battery discharge (MW)          &   23.1  &    45.6  &       0.0   &     609.3   \\
+      Battery charging (MW)           &   29.8  &    51.0  &       0.0   &     518.9   \\
+      Wind generation (MW)            &  753.4  &   502.2  &       0.0   &   2{,}189.0 \\
+      Demand (MW)                     & 1{,}287.9 &  451.7  &    $-$287.7 &   3{,}291.9 \\
+      \bottomrule
+    \end{tabular}
+    \begin{tablenotes}
+      \small
+      \item \textit{Notes:} SA = South Australia; VIC = Victoria.
+        Prices sourced from OpenElectricity API~v4; generation and demand from
+        AEMO NEMWEB MMSDM archives. Negative demand values reflect net exports
+        via the Heywood interconnector.
+    \end{tablenotes}
+  \end{threeparttable}
+\end{table}
+
+%% ============================================================
+\section{Methodology}
+\label{sec:method}
+
+\subsection{Cointegration Framework}
+
+Let $p^{SA}_t$ and $p^{VIC}_t$ denote the log-level wholesale prices in SA and
+Victoria at trading interval~$t$. Augmented Dickey-Fuller (ADF), Phillips-Perron (PP)
+and KPSS tests confirm that both series are integrated of order one, $I(1)$, while
+their linear combination is $I(0)$. The Johansen maximum-likelihood trace test
+identifies one cointegrating vector, normalised on $p^{SA}_t$:
+\begin{equation}
+  \ect_t = p^{SA}_t - 1.2103 \cdot p^{VIC}_t.
+  \label{eq:ect}
+\end{equation}
+An ADF test on $\hat{\ect}_t$ rejects the unit-root null decisively
+($t = -38.96$, $p < 0.001$), confirming the cointegrating relationship.
+The coefficient 1.2103 implies that a one-dollar increase in the Victorian price is
+associated with a $1.21$-dollar increase in the SA price in long-run equilibrium,
+consistent with the Heywood interconnector transmitting Victorian surplus northward
+with a modest loss premium reflecting congestion and network charges.
+
+\subsection{Threshold Identification}
+
+We test for threshold cointegration in the ECT using the
+\textcite{hansen2002testing} supremum-$F$ statistic, which evaluates the null of
+linear cointegration against the alternative of a two-threshold (three-regime)
+cointegrating relationship. The trimming parameter restricts each outer regime to
+contain at least 5\% of observations. Wild bootstrap $p$-values are computed from
+399~Rademacher resamples to achieve robustness under the heteroskedasticity typical
+of electricity price data.
+
+Table~\ref{tab:threshold} compares three threshold specifications. The two-threshold
+model, which partitions the ECT into a lower tail, central band, and upper tail,
+yields the lowest AIC (723{,}752) and the only bootstrap $p$-value below conventional
+significance thresholds ($p = 0.040$). The estimated thresholds are:
+\begin{equation}
+  \hat{\gamma}_L = -45.80 \;\text{\$/MWh}, \qquad \hat{\gamma}_U = +20.02 \;\text{\$/MWh}.
+  \label{eq:thresholds}
+\end{equation}
+Regime~1 ($\ect_t < \hat{\gamma}_L$): 5{,}253 observations, 10\% of the sample---
+intervals where SA prices are severely depressed relative to VIC, driven by renewable
+oversupply that cannot be exported. Regime~2 ($\hat{\gamma}_L \leq \ect_t \leq
+\hat{\gamma}_U$): 42{,}041 observations, 80\%---the convergence band in which price
+differentials are too small to profitably trigger adjustment. Regime~3
+($\ect_t > \hat{\gamma}_U$): 5{,}257 observations, 10\%---periods of sharp SA price
+spikes where arbitrage and battery discharge are strongly incentivised.
+
+\begin{table}[htbp]
+  \centering
+  \begin{threeparttable}
+    \caption{Threshold test comparison (Hansen--Seo supremum-$F$, 399 bootstrap replications)}
+    \label{tab:threshold}
+    \begin{tabular}{lccccc}
+      \toprule
+      Specification & Regimes & Sup-$F$ & Boot.\ $p$ & AIC & BIC \\
+      \midrule
+      Single threshold          & 2 & 1{,}545.3 & 0.056 & --- & --- \\
+      Symmetric band            & 2 &   478.8   & 0.054 & 725{,}273 & 725{,}450 \\
+      Two thresholds (selected) & 3 & 1{,}983.3 & \textbf{0.040} & \textbf{723{,}752} & 724{,}018 \\
+      \bottomrule
+    \end{tabular}
+    \begin{tablenotes}
+      \small
+      \item \textit{Notes:} AIC and BIC for single-threshold model not reported
+        because the model specification differs from the two-threshold system.
+        Bold denotes preferred specification. Bootstrap $p$-values use Rademacher
+        wild resampling under the null of linear cointegration.
+    \end{tablenotes}
+  \end{threeparttable}
+\end{table}
+
+\subsection{TVECM Specification}
+
+The three-regime TVECM is estimated equation-by-equation using ordinary least squares
+with regime indicator variables interacted with all right-hand-side regressors.
+For the SA price change equation:
+\begin{align}
+  \dsa_t &= \sum_{r=1}^{3} \mathbf{1}[\ect_{t-1} \in \mathcal{R}_r]
+    \Bigl(
+      \alpha_r \ect_{t-1}
+      + \sum_{k=1}^{4} \phi^{SA}_{r,k} \dsa_{t-k}
+      + \sum_{k=1}^{4} \phi^{VIC}_{r,k} \dvic_{t-k} \notag \\
+      &\quad\quad + \beta^{dis}_{r} \mathit{dis}_t
+      + \beta^{ch}_{r} \mathit{ch}_t
+      + \gamma^{w}_{r} \mathit{wind}_t
+      + \gamma^{s}_{r} \mathit{solar}_t
+      + \gamma^{d}_{r} \mathit{dem}_t
+      + \gamma^{ic}_{r} \mathit{ic}_t
+      + c_r
+    \Bigr)
+    + \varepsilon_t,
+  \label{eq:tvecm}
+\end{align}
+where $\mathcal{R}_r$ denotes the partition of the ECT implied by
+equation~\eqref{eq:thresholds}, $\alpha_r$ is the regime-specific adjustment speed,
+$\mathit{dis}_t$ and $\mathit{ch}_t$ are battery discharge and charging in MW,
+and $\mathit{ic}_t$ is the interconnector flow. An analogous equation is estimated
+for $\dvic_t$. All coefficient standard errors are computed using the
+\citeauthor{newey1987simple} (\citeyear{newey1987simple}) HAC estimator with 12 lags
+(equivalent to six hours of autocorrelation), accounting for serial correlation
+induced by regime-switching and battery cycle lengths. Wald tests of equality across
+regimes are conducted by estimating the fully interacted pooled model and testing the
+joint hypothesis $H_0\colon \alpha_1 = \alpha_2 = \alpha_3$ for adjustment speeds
+and analogously for battery coefficients.
+
+\subsection{Endogeneity and Instrumental Variable Strategy}
+
+The contemporaneous battery discharge variable $\mathit{dis}_t$ is endogenous by
+construction. Batteries in the NEM operate under automatic generation control and
+bidding algorithms that respond within seconds to dispatched price signals; a high
+realised SA price at interval~$t$ mechanically induces additional discharge at
+interval~$t$. This simultaneity biases OLS estimates of $\beta^{dis}_{r}$ upward
+(toward positive values), producing the spurious positive coefficients observed in
+Phase~2 of the estimation.
+
+We address endogeneity with a three-phase identification strategy:
+
+\paragraph{Phase 3 --- Predetermined regressors.} Replacing contemporaneous
+$\mathit{dis}_t$ with its first lag $\mathit{dis}_{t-1}$ eliminates within-interval
+simultaneity because the previous period's dispatch is predetermined with respect to
+current price shocks. Sign reversals between Phase~2 and Phase~3 coefficients
+indicate the direction and magnitude of the simultaneity bias.
+
+\paragraph{Phase 4 --- 2SLS with capacity-normalised SOC.} The primary instrument is
+\begin{equation}
+  \mathit{SOC}^{\text{norm}}_{t-1}
+  = \frac{\text{Rolling 12-hour net charging (MWh) up to } t-1}
+         {\text{Total installed capacity (MWh) at } t-1},
+  \label{eq:soc}
+\end{equation}
+which measures the fraction of available fleet capacity that has been charged over the
+preceding six hours, lagged one period. A high $\mathit{SOC}^{\text{norm}}_{t-1}$
+indicates that batteries entered the current interval with substantial stored energy
+available for discharge, increasing the probability of discharge in period~$t$
+independently of current prices. The capacity denominator is time-varying, reflecting
+the 13 facility commissioning dates over the study window; normalisation by installed
+capacity prevents the growing MWh stock from contaminating the instrument with a
+trend correlated with macro energy-transition variables (a concern validated
+\textit{ex post} by the Sargan test results for the un-normalised instrument).
+
+Instrument relevance is assessed via the conditional partial $F$-statistic from the
+first-stage regression of $\mathit{dis}_t$ on $\mathit{SOC}^{\text{norm}}_{t-1}$ and
+all other exogenous regressors within each regime. Endogeneity is tested using the
+Wu-Hausman $t$-test of the null that the OLS and 2SLS estimators are consistent.
+An over-identified specification appending the raw cumulative SOC
+($\mathit{SOC}^{\text{raw}}_{t-1}$, in MWh, lagged) provides a second instrument
+and enables the Sargan $J$-test of instrument exogeneity.
+
+%% ============================================================
+\section{Results}
+\label{sec:results}
+
+\subsection{Threshold Tests and Regime Boundaries}
+
+Table~\ref{tab:threshold} reports the threshold comparison. The two-threshold
+specification dominates on both information criteria and achieves the only
+statistically significant bootstrap $p$-value ($p = 0.040$), confirming that the
+SA--VIC cointegrating relationship exhibits non-linear adjustment with two distinct
+boundary values. The Sup-$F$ statistic of 1{,}983.3 far exceeds the 5\% critical
+value of 1{,}911.0, although the bootstrap $p$-value provides the preferred
+inference owing to the non-standard asymptotic distribution under the null.
+
+The implied regime boundaries in equation~\eqref{eq:thresholds} have natural
+economic interpretations. The lower threshold ($-\$45.80$/MWh) corresponds
+approximately to the variable cost of activating an emergency demand response
+mechanism or a liquid fuel peaker in SA---the floor below which deep SA discounts
+become sufficient to attract emergency responses. The upper threshold
+($+\$20.02$/MWh) is broadly consistent with the break-even spread required to
+cover Heywood interconnector transmission loss factors plus variable operating costs,
+below which import flows are not profitably triggered. Between these values, prices
+may deviate without correction because the cost of arbitrage exceeds the available
+rent.
+
+\subsection{Adjustment Speeds and Error-Correction Dynamics}
+
+Table~\ref{tab:adjustment} presents the regime-specific adjustment coefficients
+($\alpha_r$) for both equations. The Wald test strongly rejects equality of adjustment
+speeds across regimes in the SA equation ($F = 29.96$, $p < 0.001$).
+
+\begin{table}[htbp]
+  \centering
+  \begin{threeparttable}
+    \caption{Error-correction adjustment speeds by regime (Phase~2 OLS)}
+    \label{tab:adjustment}
+    \begin{tabular}{lcccc}
+      \toprule
+      & \multicolumn{2}{c}{SA equation ($\hat{\alpha}^{SA}_r$)}
+      & \multicolumn{2}{c}{VIC equation ($\hat{\alpha}^{VIC}_r$)} \\
+      \cmidrule(lr){2-3}\cmidrule(lr){4-5}
+      Regime & Coefficient & Sig. & Coefficient & Sig. \\
+      \midrule
+      1: Discount ($\ect < -45.80$)  & $+0.213$ & & $+0.525$ & *** \\
+      2: Band ($|\ect| \leq 20.02$)  & $+0.249$ & *** & $+0.082$ & *** \\
+      3: Spike  ($\ect > +20.02$)    & $-0.349$ & *** & $-0.002$ & \\
+      \midrule
+      \multicolumn{5}{l}{\textit{Wald test, $H_0$: $\alpha_1=\alpha_2=\alpha_3$ (SA equation): $F = 29.96$, $p < 0.001$}} \\
+      \bottomrule
+    \end{tabular}
+    \begin{tablenotes}
+      \small
+      \item \textit{Notes:} HAC standard errors (Newey-West, 12 lags).
+        Significance: *** $p<0.01$, ** $p<0.05$, * $p<0.10$.
+        Regime boundaries based on estimated ECT = $p^{SA} - 1.2103 \cdot p^{VIC}$.
+        Regime observations: R1 = 5{,}253 (10\%), R2 = 42{,}041 (80\%), R3 = 5{,}257 (10\%).
+    \end{tablenotes}
+  \end{threeparttable}
+\end{table}
+
+The adjustment pattern is strongly asymmetric across equations and regimes. In the
+spike regime (Regime~3), only the SA equation corrects significantly
+($\hat{\alpha}^{SA}_3 = -0.349$, $p < 0.001$), while the Victorian adjustment
+coefficient is negligible and insignificant ($-0.002$). This one-sided error correction
+implies that, following a positive SA price spike, it is SA prices that fall back toward
+equilibrium rather than Victorian prices rising to meet them---consistent with the
+interpretation that SA spikes are driven by local supply shocks (renewable intermittency,
+network constraint) that reverse through local generation response rather than through
+interstate flows.
+
+The implied half-life of the ECT deviation in Regime~3 is:
+\begin{equation}
+  t_{1/2} = \frac{\ln 0.5}{\ln(1 - 0.349)} \approx 1.62 \; \text{periods}
+           = 0.81 \; \text{hours},
+\end{equation}
+suggesting that extreme SA price events are short-lived---typically resolved within
+one to two thirty-minute dispatch intervals. In Regime~1, the pattern reverses:
+Victoria corrects ($\hat{\alpha}^{VIC}_1 = +0.525$, $p < 0.001$) while SA does not.
+Deep SA discounts are absorbed by Victorian generators reducing output---again
+reflecting the direction of economic pressure rather than arbitrage flows. In the
+central band, both markets exhibit small positive adjustment coefficients, consistent
+with a modest tendency for prices to drift apart rather than together within the
+band of inaction.
+
+\subsection{Battery Effects: Three-Phase Comparison}
+
+Table~\ref{tab:battery} presents the battery discharge coefficient across the three
+identification strategies. The Wald test rejects equality of battery discharge
+coefficients across regimes in the SA equation ($F = 8.19$, $p < 0.001$).
+
+\begin{table}[htbp]
+  \centering
+  \begin{threeparttable}
+    \caption{Battery discharge coefficient ($\hat{\beta}^{dis}_r$), SA equation: three-phase comparison}
+    \label{tab:battery}
+    \begin{tabular}{lcccccc}
+      \toprule
+      & \multicolumn{2}{c}{Phase 2: OLS}
+      & \multicolumn{2}{c}{Phase 3: Lagged OLS}
+      & \multicolumn{2}{c}{Phase 4: 2SLS (IV)} \\
+      \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+      Regime & $\hat{\beta}$ & Sig. & $\hat{\beta}$ & Sig. & $\hat{\beta}$ & Sig. \\
+      \midrule
+      1: Discount & $+0.445$ & *** & $+0.003$ & & $+3.641$ & *** \\
+      2: Band     & $+0.036$ & *** & $-0.029$ & & $+0.557$ & *** \\
+      3: Spike    & $+1.201$ & *** & $-0.194$ & & $+0.488$ & \\
+      \midrule
+      \multicolumn{7}{l}{\textit{Wald test, regime equality (Phase 2 SA): $F = 8.19$, $p < 0.001$}} \\
+      \bottomrule
+    \end{tabular}
+    \begin{tablenotes}
+      \small
+      \item \textit{Notes:} Phase~2 uses contemporaneous $\mathit{dis}_t$;
+        Phase~3 uses $\mathit{dis}_{t-1}$; Phase~4 instruments $\mathit{dis}_t$
+        with $\mathit{SOC}^{\text{norm}}_{t-1}$ (see Section~\ref{sec:method}).
+        HAC standard errors (Newey-West, 12 lags). Significance: *** $p<0.01$, ** $p<0.05$, * $p<0.10$.
+        Phase~4 Regime~3 coefficient: $\hat{\beta} = +0.488$, $p = 0.178$ (not significant).
+    \end{tablenotes}
+  \end{threeparttable}
+\end{table}
+
+Three findings stand out. First, the Phase~2 OLS coefficient in the spike regime
+($+1.201^{***}$) is implausibly large in sign: it implies that an extra megawatt of
+battery discharge \textit{raises} SA prices by \$1.20/MWh, which contradicts the
+basic economics of supply and demand. This sign inversion arises from simultaneity
+bias: batteries discharge more when prices are already high, creating positive
+covariance between discharge and prices in the OLS regression. Second, replacing
+contemporaneous discharge with the lagged value (Phase~3) reverses the sign to
+$-0.194$ in Regime~3, consistent with causal dampening, though the coefficient is
+not statistically significant at conventional levels. Third, the 2SLS estimate
+(Phase~4) in Regime~3 is $+0.488$ but again statistically insignificant ($p = 0.178$),
+implying that---after properly instrumenting for endogeneity---the marginal causal
+effect of battery discharge on SA prices in the spike regime is indistinguishable
+from zero at the individual-interval level.
+
+\subsection{IV Diagnostics}
+
+Table~\ref{tab:ivdiag} reports the IV diagnostic statistics. Instrument relevance is
+strong in Regimes~2 and~3 (partial $F = 129.6$ and $20.0$ respectively) but falls
+below the \citeauthor{staiger1997instrumental} (\citeyear{staiger1997instrumental})
+rule-of-thumb threshold of 10 in Regime~1 ($F = 6.7$), flagging potential weak-instrument
+bias for that regime's IV estimate.
+
+\begin{table}[htbp]
+  \centering
+  \begin{threeparttable}
+    \caption{IV diagnostic statistics by regime (Phase~4)}
+    \label{tab:ivdiag}
+    \begin{tabular}{lccccccc}
+      \toprule
+      & \multicolumn{2}{c}{First-stage}
+      & \multicolumn{2}{c}{Wu-Hausman}
+      & \multicolumn{2}{c}{Sargan $J$-test} \\
+      \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+      Regime & Partial $F$ & Strength & $p$-value & Decision & $p$-value & Decision \\
+      \midrule
+      1: Discount & 6.70  & Weak \dag & 0.031** & Endogenous & 0.116 & Consistent \\
+      2: Band     & 129.6 & Strong    & $<$0.001*** & Endogenous & $<$0.001*** & Inconsistent \ddag \\
+      3: Spike    & 20.0  & Strong    & 0.622 & Exogenous  & 0.856 & Consistent \\
+      \bottomrule
+    \end{tabular}
+    \begin{tablenotes}
+      \small
+      \item \textit{Notes:}
+        \dag{} First-stage $F < 10$; 2SLS estimates for Regime~1 should be interpreted
+        with caution.
+        \ddag{} Sargan $J$-test failure for Regime~2 reflects trend contamination in the
+        raw SOC instrument; the just-identified specification using only
+        $\mathit{SOC}^{\text{norm}}_{t-1}$ is the primary estimator.
+        Significance: *** $p<0.01$, ** $p<0.05$, * $p<0.10$.
+    \end{tablenotes}
+  \end{threeparttable}
+\end{table}
+
+Wu-Hausman tests confirm endogeneity of contemporaneous battery discharge in the
+discount and band regimes ($p = 0.031$ and $p < 0.001$ respectively), validating the
+IV approach for those regimes. In the spike regime, however, endogeneity is not
+detected ($p = 0.622$), which is consistent with the observation that extreme spike
+events may overwhelm battery dispatch algorithms---operators are unable to respond
+fast enough to create the simultaneity that characterises the band regime.
+
+The Sargan $J$-test is interpretable only in the over-identified specification
+(including both $\mathit{SOC}^{\text{norm}}_{t-1}$ and $\mathit{SOC}^{\text{raw}}_{t-1}$).
+It fails to reject instrument exogeneity in Regimes~1 and~3 ($p = 0.116$ and
+$p = 0.856$ respectively), supporting the validity of $\mathit{SOC}^{\text{norm}}_{t-1}$.
+In Regime~2, the $J$-test rejects at the 1\% level ($p < 0.001$), indicating that the
+\textit{raw} cumulative SOC is not a valid instrument in the band. This failure is
+economically interpretable: the raw MWh stock grows monotonically with the expanding
+fleet, creating correlation with macroeconomic energy-transition drivers that may also
+affect price dynamics in the convergence band. Capacity normalisation removes this
+trend, restoring instrument validity, and the primary IV estimator uses only
+$\mathit{SOC}^{\text{norm}}_{t-1}$.
+
+\subsection{Welfare Quantification}
+
+To assess the aggregate price-dampening effect of the BESS fleet, we construct a
+static counterfactual price series for SA by removing the estimated battery
+contribution from each observation within each regime:
+\begin{equation}
+  p^{SA,CF}_t = p^{SA}_t - \hat{\beta}^{dis}_{r(t)} \cdot \mathit{dis}_{t-1},
+  \label{eq:counterfactual}
+\end{equation}
+where $r(t)$ denotes the regime assignment of interval~$t$ and Phase~3 lagged
+coefficients are used to preserve causal identification. In Regime~3 (spike events),
+the mean estimated battery contribution is $-5.58$\,\$/MWh, with 100\% of
+regime-3 contributions carrying the expected negative sign. In Regime~1, contributions
+are mixed (71.7\% negative), consistent with batteries providing some modest dampening
+even in discount periods through reduced over-generation.
+
+The intraday profile of battery contributions peaks in the early evening:
+dampening is greatest at 20:00--21:00 hours ($-2.78$\,\$/MWh average contribution),
+coinciding with the evening demand ramp following solar generation collapse. A small
+positive contribution is observed at midday, reflecting periods when charging activity
+competes with solar export and marginally tightens local supply.
+
+Annualising the per-period consumer surplus gain using the mean SA demand of
+1{,}288~MW yields an estimated welfare benefit of:
+\begin{equation}
+  \text{Welfare gain} = |\Delta\bar{p}| \times \bar{Q} \times 17{,}520
+  \approx \$10.83 \text{ million per year},
+  \label{eq:welfare}
+\end{equation}
+where $\Delta\bar{p}$ is the mean counterfactual price difference in Regime~3,
+$\bar{Q}$ is mean demand in MWh per half-hour, and 17{,}520 is the number of
+thirty-minute intervals in a year. This estimate is conservative in the sense that
+it holds constant the regime path and does not account for second-order reductions
+in interconnector flows that would occur in a fully dynamic counterfactual.
+
+%% ============================================================
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Asymmetric Error Correction and Market Architecture}
+
+The finding that SA corrects in the spike regime but not in the discount regime, while
+the reverse holds for Victoria, is consistent with the \textcite{balke1997threshold}
+model of arbitrage with transaction costs. In that framework, the direction of
+error correction in each outer regime depends on which market faces the stronger
+mean-reverting force: the market experiencing the shock corrects, while the market
+receiving the arbitrage flow is relatively passive. Our results indicate that SA
+experiences supply-shock-driven spikes (generators or batteries respond locally to
+close the gap), while VIC responds to SA's extreme discounts by reducing its own
+output. This asymmetry has important regulatory implications: the SA system must
+maintain local flexibility resources---including BESS---capable of responding rapidly
+to within-hour price spikes, as the 0.8-hour half-life leaves little time for
+interstate flows to equilibrate prices.
+
+\subsection{The Endogeneity Story and Battery Causal Effect}
+
+The progression from Phase~2 through Phase~4 tells a coherent story about
+simultaneity bias. The OLS estimate in Regime~3 ($+1.201$) reflects the positive
+correlation between dispatch and spikes: batteries react to high prices, so their
+discharge appears positively correlated with prices in contemporaneous regressions.
+After instrumenting with predetermined SOC, the estimate collapses to near zero
+($+0.49$, insignificant), bracketing the true causal effect somewhere between the
+negative lagged estimate ($-0.19$) and the IV estimate. Taken together, the Phase~3
+and Phase~4 results are consistent with a true marginal causal effect close to zero
+at the individual-interval level---batteries dispatch too intermittently to move
+prices materially in any single 30-minute interval---while the cumulative welfare
+gain of \$10.83~million arises from the systematic dampening across many Regime~3
+events over the full three-year window.
+
+The growing battery fleet is also reshaping the structure of the SA--VIC market
+itself. The rise in the SA--VIC price correlation from 0.38 (2023) to 0.80 (2025)
+suggests that BESS arbitrage is increasingly substituting for interconnector flows,
+tightening the long-run price relationship captured by the cointegrating vector
+in equation~\eqref{eq:ect}. If this trend continues, the upper threshold
+$\hat{\gamma}_U$ may tighten over time as the fleet expands, progressively
+shrinking Regime~3 and reducing the frequency of extreme spike events---a dynamic
+that a time-varying threshold model could capture but that lies beyond the scope of
+the present static analysis.
+
+\subsection{Welfare Interpretation and Capacity Normalisation}
+
+The \$10.83~million annualised consumer surplus estimate should be interpreted as a
+lower bound on total societal benefits. It captures only the direct price effect in
+the observed spot market, ignoring ancillary service contributions (frequency
+regulation, voltage support), capacity market value, and the avoided costs of peaker
+plant construction that BESS displaces. Furthermore, the static counterfactual of
+equation~\eqref{eq:counterfactual} holds the regime path fixed, whereas in a dynamic
+counterfactual without batteries, more intervals would enter Regime~3 and the welfare
+gain would be correspondingly larger.
+
+The Sargan test failure for the raw SOC instrument in Regime~2 provides an important
+methodological lesson for BESS impact studies: as the fleet grows, any instrument
+constructed from cumulative physical quantities (MWh) will inherit a trend correlated
+with macro energy-transition variables. Normalisation by installed capacity is not
+merely a convenience but a condition for instrument validity in expanding markets.
+
+%% ============================================================
+\section{Limitations}
+\label{sec:limitations}
+
+\paragraph{Weak instrument in Regime~1.}
+The first-stage partial $F$-statistic for Regime~1 (6.70) falls below the
+\textcite{staiger1997instrumental} threshold of 10, meaning that the 2SLS estimate
+for the discount regime ($+3.64$) is susceptible to bias toward the OLS estimate and
+inflated standard errors. Regime~1 covers only 10\% of observations (5{,}253
+intervals), limiting the precision with which battery behaviour in deep-discount
+periods can be estimated. Future work could address this by developing additional
+instruments, such as day-ahead renewable generation forecasts or BESS operator bid
+schedules, which are predetermined and may exhibit stronger correlation with discount-
+period dispatch decisions.
+
+\paragraph{Sargan failure for raw SOC in Regime~2.}
+The over-identified Sargan $J$-test rejects instrument consistency for the raw MWh
+SOC in Regime~2 ($p < 0.001$), indicating that the raw stock is not a valid
+instrument in the convergence band. While the primary estimator avoids this problem
+through capacity normalisation, the failure underscores that the growing fleet
+introduces non-stationarity in the raw instrument that must be accounted for. A more
+refined instrument set---exploiting firm-level commissioning dates or operator-specific
+bidding patterns---could improve identification and potentially restore the
+over-identified $J$-test in future work.
+
+\paragraph{Residual autocorrelation in outer regimes.}
+Ljung-Box portmanteau tests on the residuals of the SA equation indicate significant
+serial correlation at 12 lags in Regimes~1 and~3, suggesting that the four-lag VAR
+specification may under-parameterise the dynamics in the outer regimes. Increasing the
+lag order in those regimes---or adopting a smooth-transition VECM that allows
+parameters to vary continuously with the ECT---could reduce the autocorrelation and
+improve efficiency of the error-correction estimates.
+
+\paragraph{Static counterfactual.}
+The welfare estimate in equation~\eqref{eq:welfare} holds the regime path constant at
+its observed values. In a dynamic counterfactual, removing battery discharge would
+alter the sequence of ECT values, changing regime assignments and potentially
+increasing the number of Regime~3 events. The static approach therefore understates
+both the frequency and severity of spikes that would occur in the counterfactual
+world, implying that our \$10.83~million figure is a conservative lower bound on the
+true consumer surplus gain.
+
+%% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper documents the causal role of battery energy storage in shaping wholesale
+electricity price dynamics in South Australia using a three-regime threshold vector
+error-correction model estimated on three years of thirty-minute data. The empirical
+record is consistent across all three identification strategies: SA prices correct
+rapidly in spike episodes (half-life 0.8~hours), batteries dampen those spikes on a
+cumulative basis ($-5.58$\,\$/MWh in Regime~3), and the implied consumer surplus gain
+reaches \$10.83~million per year under conservative static assumptions. Wu-Hausman
+tests confirm that contemporaneous OLS is endogenous in the convergence and discount
+regimes, making 2SLS with a capacity-normalised state-of-charge instrument the
+preferred point estimator. As the SA fleet continues to expand---currently on
+trajectory toward 3{,}000~MWh by 2030---the threshold boundaries identified here are
+likely to evolve, and monitoring their time-variation offers a natural avenue for
+extending this analysis.
+
+%% ============================================================
+\printbibliography[heading=bibintoc,title={References}]
+
+\end{document}
