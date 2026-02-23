@@ -75,7 +75,7 @@ DIVIDER = "=" * 72
 EVAL_DATES = [
     ("2023-01-01", "Jan 2023 (pre-Torrens)"),
     ("2024-01-01", "Jan 2024 (post-Torrens)"),
-    ("2025-06-01", "Jun 2025 (post-Blyth)"),
+    ("2025-12-01", "Dec 2025 (end-of-sample)"),
 ]
 
 
