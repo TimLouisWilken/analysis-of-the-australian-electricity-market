@@ -1,0 +1,23 @@
+PHASE 7 — TVECM-GARCH-M SUMMARY
+============================================================
+Spec: GARCH(1,1)-t  ECM_lags=4  HAC=12  max_iter=10
+
+GARCH parameters:
+  Regime 1: omega=23.5370  alpha_G=0.8405***  beta_G=0.1136***  persistence=0.9541  nu=3.01  converged=True
+  Regime 2: omega=160.8494  alpha_G=0.6616***  beta_G=0.3384***  persistence=1.0000  nu=2.86  converged=True
+  Regime 3: omega=74.3687  alpha_G=0.8559***  beta_G=0.1441***  persistence=1.0000  nu=2.81  converged=True
+
+Risk premium delta:
+  Regime 1: delta=-1.9571  se=1.1848  p=0.0986*
+  Regime 2: delta=-0.0035  se=0.0146  p=0.8099
+  Regime 3: delta=-0.8499  se=1.1781  p=0.4706
+
+Battery discharge (Phase 2 OLS → Phase 7 GARCH-M):
+  Regime 1: OLS=0.4446***  →  GARCH-M=0.4434***
+  Regime 2: OLS=0.0360***  →  GARCH-M=0.0360***
+  Regime 3: OLS=1.2008***  →  GARCH-M=1.2275***
+
+Diagnostics (p-values):
+  Regime 1: ARCH_pre=0.0000  ARCH_post=0.0000  LB_std=0.1605  LB_sq=1.0000
+  Regime 2: ARCH_pre=1.0000  ARCH_post=1.0000  LB_std=0.9030  LB_sq=1.0000
+  Regime 3: ARCH_pre=0.0000  ARCH_post=0.0000  LB_std=0.1477  LB_sq=0.9986

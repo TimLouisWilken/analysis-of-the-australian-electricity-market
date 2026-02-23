@@ -1,0 +1,54 @@
+========================================================================
+PHASE 9 — BATTERY × CAPACITY INTERACTION TERMS
+========================================================================
+cap_norm = installed_MWh / mean_MWh  (mean = 650.7 MWh)
+ECM lags L=4,  HAC bandwidth=12
+
+=== Regime 1 (n=5,255) ===
+  β_dis (base, no interact): +0.4446  [Phase 2 reference]
+  β_dis (interact model):    +0.8806
+  γ_dis (bat×cap):           -0.2706  SE=0.2349  t=-1.152  p=0.2494
+  β_chg (interact model):    -0.4049
+  γ_chg (chg×cap):           +0.1197  SE=0.0669  t=1.788  p=0.0738*
+  α (ECT adjustment):        +0.2112  SE=0.1596
+  R²=0.1058  AIC=77620.5
+
+  Marginal effect of battery discharge at evaluation dates:
+    Jan 2023 (pre-Torrens): cap=285 MWh  cap_norm=0.437  β_total=+0.7622  SE=0.2976  p=0.0105**
+    Jan 2024 (post-Torrens): cap=535 MWh  cap_norm=0.822  β_total=+0.6582  SE=0.2240  p=0.0033***
+    Jun 2025 (post-Blyth): cap=1096 MWh  cap_norm=1.684  β_total=+0.4249  SE=0.1528  p=0.0054***
+
+=== Regime 2 (n=42,040) ===
+  β_dis (base, no interact): +0.0360  [Phase 2 reference]
+  β_dis (interact model):    +0.2002
+  γ_dis (bat×cap):           -0.1040  SE=0.0309  t=-3.364  p=0.0008***
+  β_chg (interact model):    -0.0877
+  γ_chg (chg×cap):           +0.0389  SE=0.0173  t=2.245  p=0.0248**
+  α (ECT adjustment):        +0.2624  SE=0.0574
+  R²=0.0181  AIC=485605.7
+
+  Marginal effect of battery discharge at evaluation dates:
+    Jan 2023 (pre-Torrens): cap=285 MWh  cap_norm=0.437  β_total=+0.1547  SE=0.0401  p=0.0001***
+    Jan 2024 (post-Torrens): cap=535 MWh  cap_norm=0.822  β_total=+0.1147  SE=0.0285  p=0.0001***
+    Jun 2025 (post-Blyth): cap=1096 MWh  cap_norm=1.684  β_total=+0.0250  SE=0.0064  p=0.0001***
+
+=== Regime 3 (n=5,257) ===
+  β_dis (base, no interact): +1.2009  [Phase 2 reference]
+  β_dis (interact model):    +6.0232
+  γ_dis (bat×cap):           -2.8803  SE=0.8948  t=-3.219  p=0.0013***
+  β_chg (interact model):    -0.7315
+  γ_chg (chg×cap):           +0.5051  SE=0.1483  t=3.405  p=0.0007***
+  α (ECT adjustment):        -0.3513  SE=0.0575
+  R²=0.2297  AIC=81936.2
+
+  Marginal effect of battery discharge at evaluation dates:
+    Jan 2023 (pre-Torrens): cap=285 MWh  cap_norm=0.437  β_total=+4.7634  SE=1.3079  p=0.0003***
+    Jan 2024 (post-Torrens): cap=535 MWh  cap_norm=0.822  β_total=+3.6568  SE=0.9778  p=0.0002***
+    Jun 2025 (post-Blyth): cap=1096 MWh  cap_norm=1.684  β_total=+1.1736  SE=0.3509  p=0.0008***
+
+========================================================================
+CAPACITY GROWTH EFFECT SUMMARY
+========================================================================
+Regime 1: β_total(2023-Jan)=+0.7622 → β_total(2025-Jun)=+0.4249  (Δ=-0.3373  see signs)
+Regime 2: β_total(2023-Jan)=+0.1547 → β_total(2025-Jun)=+0.0250  (Δ=-0.1297  see signs)
+Regime 3: β_total(2023-Jan)=+4.7634 → β_total(2025-Jun)=+1.1736  (Δ=-3.5898  see signs)

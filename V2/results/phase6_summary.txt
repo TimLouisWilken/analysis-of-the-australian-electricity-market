@@ -1,0 +1,24 @@
+PHASE 6 — TIME-VARYING THRESHOLD ANALYSIS
+============================================================
+Fixed: beta=1.2103  ECM lags=4
+Grid: 17×17 quantile pairs  min_regime_pct=5%
+Full-sample reference (Phase 1): gamma_L=-45.80  gamma_U=20.02  BW=65.83
+
+Rolling threshold estimates (sorted by date):
+  2023          cap=285 MWh  gamma_L=-49.24  gamma_U=25.99  BW=75.22  R1=5.0%  R3=9.4%
+  2023 H1       cap=285 MWh  gamma_L=-52.46  gamma_U=23.85  BW=76.31  R1=5.0%  R3=9.4%
+  2023 H2       cap=535 MWh  gamma_L=-44.46  gamma_U=78.74  BW=123.20  R1=5.0%  R3=5.0%
+  2024          cap=535 MWh  gamma_L=-74.37  gamma_U=28.81  BW=103.18  R1=5.0%  R3=7.2%
+  2024 H1       cap=535 MWh  gamma_L=-17.92  gamma_U=26.32  BW=44.24  R1=29.1%  R3=7.2%
+  2024 H2       cap=535 MWh  gamma_L=-78.09  gamma_U=61.36  BW=139.45  R1=5.0%  R3=5.0%
+  2025          cap=1096 MWh  gamma_L=-82.46  gamma_U=49.93  BW=132.38  R1=5.0%  R3=5.0%
+  2025 H1       cap=1096 MWh  gamma_L=-84.29  gamma_U=34.11  BW=118.41  R1=5.0%  R3=5.0%
+  2025 H2       cap=1096 MWh  gamma_L=-39.89  gamma_U=63.27  BW=103.16  R1=15.9%  R3=5.0%
+
+Threshold-capacity regression:
+  gamma_U ~ cap (annual  N=3): slope=+0.0309 (se=0.0062) p=0.1257  r=+0.981
+  gamma_U ~ cap (semi  N=6): slope=+0.0121 (se=0.0334) p=0.7344  r=+0.179
+  gamma_L ~ cap (annual  N=3): slope=-0.0365 (se=0.0202) p=0.3221  r=-0.875
+  gamma_L ~ cap (semi  N=6): slope=-0.0185 (se=0.0358) p=0.6320  r=-0.251
+  bandwidth ~ cap (annual  N=3): slope=+0.0674 (se=0.0140) p=0.1307  r=+0.979
+  bandwidth ~ cap (semi  N=6): slope=+0.0307 (se=0.0497) p=0.5705  r=+0.295

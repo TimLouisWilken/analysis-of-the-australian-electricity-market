@@ -1,0 +1,27 @@
+========================================================================
+PHASE 8 — TVECM IMPULSE-RESPONSE FUNCTIONS
+========================================================================
+Shock: 1.0 MW battery discharge at h=0
+Horizon: 12 periods (6 hours)
+Bootstrap: Rademacher wild, N=500, 80% CI
+
+--- Regime 1 (n=5,255) ---
+  α_SA=0.2128  α_VIC=0.5251
+  β_dis_SA=0.4446  β_dis_VIC=0.4546
+  SA level IRF at h=12: +0.2678 $/MWh
+  VIC level IRF at h=12: +0.2220 $/MWh
+
+--- Regime 2 (n=42,040) ---
+  α_SA=0.2495  α_VIC=0.0825
+  β_dis_SA=0.0360  β_dis_VIC=0.0266
+  SA level IRF at h=12: +0.0869 $/MWh
+  VIC level IRF at h=12: +0.0492 $/MWh
+
+--- Regime 3 (n=5,257) ---
+  α_SA=-0.3486  α_VIC=-0.0015
+  β_dis_SA=1.2009  β_dis_VIC=0.0146
+  SA level IRF at h=12: +0.0264 $/MWh
+  VIC level IRF at h=12: +0.0100 $/MWh
+
+Plot saved: ~/Dateien/UCL/Econometrics/Assessment/V2/results/phase8_irf.png
+IRF data saved: ~/Dateien/UCL/Econometrics/Assessment/V2/results/phase8_irf_data.csv

@@ -1,0 +1,32 @@
+PHASE 5 — LAG ROBUSTNESS ANALYSIS
+============================================================
+Fixed: beta=1.2103  gamma_L=-45.8039  gamma_U=20.0215
+Max-lag sample: T=52544   Lag orders tested: [4, 6, 8, 10, 12]
+HAC bandwidth: 12   Ljung-Box test lags: 12
+
+Regime 1 (N=5255):
+  Optimal L by AIC: 12   by BIC: 10
+  Baseline (L=4) LB(12) p = 0.0000  (significant AR)
+  L= 4: alpha=+0.2128     beta_dis=+0.4446***  AIC=62706.4  BIC=62811.5  LB(12)p=0.0000
+  L= 6: alpha=+0.2660     beta_dis=+0.4412***  AIC=62647.3  BIC=62778.7  LB(12)p=0.0000
+  L= 8: alpha=+0.2540     beta_dis=+0.4452***  AIC=62520.7  BIC=62678.3  LB(12)p=0.0000
+  L=10: alpha=+0.1511     beta_dis=+0.4598***  AIC=62383.1  BIC=62567.0  LB(12)p=0.0000
+  L=12: alpha=+0.2355     beta_dis=+0.4487***  AIC=62358.9  BIC=62569.1  LB(12)p=0.0001
+
+Regime 2 (N=42032):
+  Optimal L by AIC: 4   by BIC: 4
+  Baseline (L=4) LB(12) p = 0.6634  (no significant AR)
+  L= 4: alpha=+0.2496***  beta_dis=+0.0360***  AIC=366277.3  BIC=366415.6  LB(12)p=0.6634
+  L= 6: alpha=+0.2506***  beta_dis=+0.0346***  AIC=366282.2  BIC=366455.1  LB(12)p=0.6596
+  L= 8: alpha=+0.2507***  beta_dis=+0.0346***  AIC=366290.1  BIC=366497.6  LB(12)p=0.6593
+  L=10: alpha=+0.2501***  beta_dis=+0.0352***  AIC=366294.7  BIC=366536.8  LB(12)p=0.6486
+  L=12: alpha=+0.2492***  beta_dis=+0.0356***  AIC=366300.8  BIC=366577.5  LB(12)p=0.6479
+
+Regime 3 (N=5257):
+  Optimal L by AIC: 6   by BIC: 4
+  Baseline (L=4) LB(12) p = 0.0000  (significant AR)
+  L= 4: alpha=-0.3486***  beta_dis=+1.2009***  AIC=67085.4  BIC=67190.5  LB(12)p=0.0000
+  L= 6: alpha=-0.3631***  beta_dis=+1.1689***  AIC=67084.9  BIC=67216.3  LB(12)p=0.0000
+  L= 8: alpha=-0.3685***  beta_dis=+1.1765***  AIC=67089.3  BIC=67247.0  LB(12)p=0.0000
+  L=10: alpha=-0.3719***  beta_dis=+1.1888***  AIC=67091.9  BIC=67275.8  LB(12)p=0.0000
+  L=12: alpha=-0.3683***  beta_dis=+1.2112***  AIC=67096.5  BIC=67306.6  LB(12)p=0.0001
