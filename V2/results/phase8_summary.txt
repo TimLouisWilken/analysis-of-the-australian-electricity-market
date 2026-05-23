@@ -23,5 +23,5 @@ Bootstrap: Rademacher wild, N=500, 80% CI
   SA level IRF at h=12: +0.0264 $/MWh
   VIC level IRF at h=12: +0.0100 $/MWh
 
-Plot saved: ~/Dateien/UCL/Econometrics/Assessment/V2/results/phase8_irf.png
-IRF data saved: ~/Dateien/UCL/Econometrics/Assessment/V2/results/phase8_irf_data.csv
+Plot saved: V2/results/phase8_irf.png
+IRF data saved: V2/results/phase8_irf_data.csv

@@ -2,8 +2,7 @@
 
 ### A Threshold Vector Error-Correction Analysis of the South Australian–Victorian Market
 
-> MSc Energy Systems and Data Analytics — UCL Energy Institute, Bartlett School of Environment, Energy and Resources
-> Coursework: **BENV0122 Econometrics of Energy Markets** (2025/2026, Term 2)
+> Empirical study of battery energy storage and wholesale electricity price dynamics in Australia's National Electricity Market, 2023–2025.
 
 ---
 
@@ -213,14 +212,13 @@ latexmk -pdf -bibtex sa_nem_battery_tvecm.tex
 
 ## Author
 
-**Tim Louis Wilken** (UCL Energy Institute, MSc Energy Systems and Data Analytics)
-Candidate Code: RXJY6 · Module: BENV0122 · Submitted April 2026.
+**Tim Louis Wilken** — 2026.
 
 ## Citation
 
 If you reference this work, please cite:
 
-> Wilken, T. L. (2026). *Battery Storage and Electricity Price Convergence: A Threshold Vector Error-Correction Analysis of the South Australian–Victorian Market.* MSc coursework, UCL Energy Institute, BENV0122.
+> Wilken, T. L. (2026). *Battery Storage and Electricity Price Convergence: A Threshold Vector Error-Correction Analysis of the South Australian–Victorian Market.*
 
 ## Data sources & acknowledgements
 
