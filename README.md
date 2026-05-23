@@ -104,7 +104,7 @@ Regime membership is determined by lagged ECT relative to (γ_L, γ_U): Regime 1
 | 8 | **Bivariate impulse-response** (Rademacher wild bootstrap CI) | Persistence of a 1 MW discharge shock | R3 shock decays to +0.03 \$/MWh within 6 h (half-life ≈ 2 periods, 1 h). |
 | 9 | **Battery × capacity interaction** | Whether the effect strengthened as the fleet grew | γ_dis significant (R2: *p* = 0.001; R3: *p* = 0.001). OLS coefficient shrinks 75–84 % from 2023 to 2025. |
 | 10 | **Lagged-battery R3 robustness** (3 sub-approaches) | Whether the spike-regime causal effect can reach significance | Negative sign preserved across all specs; significance limited by R3 residual SD ≈ \$589/MWh. |
-| 11 | **Markov-switching ECM** (Hamilton 1989; Kim 1994) | Whether volatility-based latent regimes confirm the TVECM finding | β_dis negative in all three states (S1, S2 at *p* < 0.001 covering 98.5 % of obs). Custom Hamilton-filter + EM implementation (statsmodels broken on NumPy 2.4). |
+| 11 | **Markov-switching ECM** (Hamilton 1989; Kim 1994) | Whether volatility-based latent regimes confirm the TVECM finding | β_dis negative in all three states (S1, S2 at *p* < 0.001 covering 98.5 % of obs). The high-volatility state independently recovers **α = −0.352\*\*\*** — essentially identical to the TVECM spike-regime estimate of **−0.349\*\*\*** — even though the two models segment the sample by completely different criteria (ECT level vs conditional variance). Custom Hamilton-filter + EM implementation (statsmodels broken on NumPy 2.4). |
 | 12 | **Merton-type jump-diffusion** (Merton 1976; Weron 2006) | Whether spikes are best modelled as a Poisson jump process, and whether batteries suppress arrival rate | β_dis = −0.054\*\*\* (direct dampening in drift). λ_dis = +0.005\*\*\* (battery operators *anticipate* jumps; strategic positioning, not causal raising). AIC improves by 213,849 over OLS. |
 
 ### 5. Why this combination?
@@ -116,6 +116,16 @@ The hypothesis is not "batteries always reduce spot prices" — that is too coar
 3. A **welfare quantification** → static counterfactual against the estimated coefficients.
 4. **Direct evidence of the timing channel** → jump-diffusion model, which separates drift (causal) from arrival rate (strategic anticipation).
 5. **Cross-validation of the regime classification** → Markov-switching ECM, which lets the data choose regimes endogenously.
+
+---
+
+## Limitations
+
+Three caveats qualify the findings:
+
+1. **Realised vs forecast renewables.** Wind, solar, and demand enter as realised values, but BESS operators dispatch on day-ahead and 5-minute *forecasts*. Forecast-error noise is therefore folded into the battery-dispatch coefficient and likely biases it towards zero.
+2. **BESS modelled as price-arbitrage only.** SA batteries also earn revenue from frequency-regulation and grid-ancillary-services (FCAS) markets. A full welfare evaluation would need to account for these parallel revenue and dispatch channels.
+3. **Regime 3 wide uncertainty.** Spike-regime residual volatility is extreme (σ ≈ \$589/MWh in the TVECM, \$1,819/MWh in the MS-ECM high-σ state). Spike-regime point estimates should be read as central tendencies rather than precise magnitudes; this is why the project leans on five independent identification strategies rather than a single coefficient.
 
 ---
 
