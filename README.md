@@ -6,7 +6,7 @@
 
 ---
 
-## TL;DR
+## Overview
 
 South Australia (SA) is one of the highest-renewable grids in the world — wind and solar averaged **90% of operational demand** over 2023–2025, and **27.5%** of half-hourly settlement prices were negative. At the same time, the right tail is extreme: 0.4% of intervals exceed **\$1,000/MWh**, with a maximum above **\$16,970/MWh**.
 
