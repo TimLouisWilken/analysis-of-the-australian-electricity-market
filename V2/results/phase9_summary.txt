@@ -1,50 +1,50 @@
 ========================================================================
 PHASE 9 — BATTERY × CAPACITY INTERACTION TERMS
 ========================================================================
-cap_norm = installed_MWh / mean_MWh  (mean = 650.7 MWh)
+cap_norm = installed_MWh / mean_MWh  (mean = 636.9 MWh)
 ECM lags L=4,  HAC bandwidth=12
 
 === Regime 1 (n=5,255) ===
   β_dis (base, no interact): +0.4446  [Phase 2 reference]
-  β_dis (interact model):    +0.8806
-  γ_dis (bat×cap):           -0.2706  SE=0.2349  t=-1.152  p=0.2494
-  β_chg (interact model):    -0.4049
-  γ_chg (chg×cap):           +0.1197  SE=0.0669  t=1.788  p=0.0738*
+  β_dis (interact model):    +0.8748
+  γ_dis (bat×cap):           -0.2649  SE=0.2299  t=-1.152  p=0.2494
+  β_chg (interact model):    -0.4024
+  γ_chg (chg×cap):           +0.1171  SE=0.0655  t=1.788  p=0.0738*
   α (ECT adjustment):        +0.2112  SE=0.1596
   R²=0.1058  AIC=77620.5
 
   Marginal effect of battery discharge at evaluation dates:
-    Jan 2023 (pre-Torrens): cap=285 MWh  cap_norm=0.437  β_total=+0.7622  SE=0.2976  p=0.0105**
-    Jan 2024 (post-Torrens): cap=535 MWh  cap_norm=0.822  β_total=+0.6582  SE=0.2240  p=0.0033***
-    Dec 2025 (end-of-sample): cap=1296 MWh  cap_norm=1.991  β_total=+0.3418  SE=0.1834  p=0.0624*
+    Jan 2023 (pre-Torrens): cap=271 MWh  cap_norm=0.425  β_total=+0.7622  SE=0.2976  p=0.0105**
+    Jan 2024 (post-Torrens): cap=521 MWh  cap_norm=0.818  β_total=+0.6582  SE=0.2240  p=0.0033***
+    Dec 2025 (end-of-sample): cap=1282 MWh  cap_norm=2.013  β_total=+0.3418  SE=0.1834  p=0.0624*
 
 === Regime 2 (n=42,040) ===
   β_dis (base, no interact): +0.0360  [Phase 2 reference]
-  β_dis (interact model):    +0.2002
-  γ_dis (bat×cap):           -0.1040  SE=0.0309  t=-3.364  p=0.0008***
-  β_chg (interact model):    -0.0877
-  γ_chg (chg×cap):           +0.0389  SE=0.0173  t=2.245  p=0.0248**
+  β_dis (interact model):    +0.1980
+  γ_dis (bat×cap):           -0.1018  SE=0.0303  t=-3.364  p=0.0008***
+  β_chg (interact model):    -0.0869
+  γ_chg (chg×cap):           +0.0380  SE=0.0169  t=2.245  p=0.0248**
   α (ECT adjustment):        +0.2624  SE=0.0574
   R²=0.0181  AIC=485605.7
 
   Marginal effect of battery discharge at evaluation dates:
-    Jan 2023 (pre-Torrens): cap=285 MWh  cap_norm=0.437  β_total=+0.1547  SE=0.0401  p=0.0001***
-    Jan 2024 (post-Torrens): cap=535 MWh  cap_norm=0.822  β_total=+0.1147  SE=0.0285  p=0.0001***
-    Dec 2025 (end-of-sample): cap=1296 MWh  cap_norm=1.991  β_total=-0.0070  SE=0.0105  p=0.5050
+    Jan 2023 (pre-Torrens): cap=271 MWh  cap_norm=0.425  β_total=+0.1547  SE=0.0401  p=0.0001***
+    Jan 2024 (post-Torrens): cap=521 MWh  cap_norm=0.818  β_total=+0.1147  SE=0.0285  p=0.0001***
+    Dec 2025 (end-of-sample): cap=1282 MWh  cap_norm=2.013  β_total=-0.0070  SE=0.0105  p=0.5050
 
 === Regime 3 (n=5,257) ===
   β_dis (base, no interact): +1.2009  [Phase 2 reference]
-  β_dis (interact model):    +6.0232
-  γ_dis (bat×cap):           -2.8803  SE=0.8948  t=-3.219  p=0.0013***
-  β_chg (interact model):    -0.7315
-  γ_chg (chg×cap):           +0.5051  SE=0.1483  t=3.405  p=0.0007***
+  β_dis (interact model):    +5.9621
+  γ_dis (bat×cap):           -2.8192  SE=0.8758  t=-3.219  p=0.0013***
+  β_chg (interact model):    -0.7208
+  γ_chg (chg×cap):           +0.4944  SE=0.1452  t=3.405  p=0.0007***
   α (ECT adjustment):        -0.3513  SE=0.0575
   R²=0.2297  AIC=81936.2
 
   Marginal effect of battery discharge at evaluation dates:
-    Jan 2023 (pre-Torrens): cap=285 MWh  cap_norm=0.437  β_total=+4.7634  SE=1.3079  p=0.0003***
-    Jan 2024 (post-Torrens): cap=535 MWh  cap_norm=0.822  β_total=+3.6568  SE=0.9778  p=0.0002***
-    Dec 2025 (end-of-sample): cap=1296 MWh  cap_norm=1.991  β_total=+0.2883  SE=0.3377  p=0.3932
+    Jan 2023 (pre-Torrens): cap=271 MWh  cap_norm=0.425  β_total=+4.7634  SE=1.3079  p=0.0003***
+    Jan 2024 (post-Torrens): cap=521 MWh  cap_norm=0.818  β_total=+3.6568  SE=0.9778  p=0.0002***
+    Dec 2025 (end-of-sample): cap=1282 MWh  cap_norm=2.013  β_total=+0.2883  SE=0.3377  p=0.3932
 
 ========================================================================
 CAPACITY GROWTH EFFECT SUMMARY

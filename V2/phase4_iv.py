@@ -80,9 +80,9 @@ CONTROLS = [
 DIVIDER = "=" * 74
 
 # ---------------------------------------------------------------------------
-# SA battery fleet capacity schedule (12 facilities — source: BESS SA.xlsx)
+# SA battery fleet capacity schedule (10 facilities — source: BESS SA.xlsx)
 # "Datum der ersten Einspeisung" = date of first feed-in to grid.
-# Templers and Bungama omitted — not in updated source file.
+# Bolivar and Happy Valley removed — not present in updated source file.
 # Hornsdale split into base (2017) + extension (2020) as per spreadsheet.
 # ---------------------------------------------------------------------------
 BATTERY_CAPACITY = [
@@ -92,9 +92,7 @@ BATTERY_CAPACITY = [
     ("Lake Bonney",                        "2019-12-01",    52.0),
     ("Hornsdale Power Reserve Ext.",       "2020-09-01",    64.5),
     ("Adelaide Desalination Plant",        "2021-05-01",    13.0),
-    ("Bolivar",                            "2022-02-01",     5.0),
     ("Christies Beach",                    "2022-03-01",     4.3),
-    ("Happy Valley",                       "2022-06-01",     8.8),
     ("Torrens Island",                     "2023-08-01",   250.0),   # in sample ← 1yr earlier
     ("Tailem Bend 2",                      "2025-01-01",    84.0),   # in sample
     ("Blyth",                              "2025-04-01",   477.0),   # in sample ← 477 MWh

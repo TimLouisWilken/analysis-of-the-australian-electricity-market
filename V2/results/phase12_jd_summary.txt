@@ -1,0 +1,64 @@
+PHASE 12 — JUMP-DIFFUSION MODEL SUMMARY
+=================================================================
+Sample: T = 52,549  (2023-01-01 03:30:00  to  2025-12-31 23:30:00)
+Model: Δsa_t = drift_t + σ·ε_t + J_t·N_t
+  drift_t = μ + α·ECT_{t-1} + lags + controls
+  N_t ~ Bernoulli(λ_t),  J_t ~ N(μ_J, σ²_J)
+  λ_t = logistic(λ_0 + λ_dis·bat_dis_{t-1} + λ_chg·bat_chg_{t-1})
+
+ESTIMATED PARAMETERS
+-----------------------------------------------------------------
+  Diffusion:  σ = 23.68
+  Jump mean:  μ_J = 367.57  (SE=32.67)
+  Jump std:   σ_J = 1359.10
+  λ_0 = -3.3276
+  λ_dis = 0.004878  (SE=0.000444, p=0.0000)
+  λ_chg = -0.002675
+  Mean λ_t = 0.0372  (avg jump probability)
+
+KEY DRIFT COEFFICIENTS
+-----------------------------------------------------------------
+  ECT_lag (α)           : -0.0777  (SE=0.0010, p=0.0000***)
+  bat_dis (direct)      : -0.0542  (SE=0.0024, p=0.0000***)
+  bat_chg (direct)      : +0.0020  (SE=0.0026, p=0.4455)
+
+BATTERY EFFECT DECOMPOSITION
+-----------------------------------------------------------------
+  Battery discharge affects prices through TWO channels:
+  1. Direct (drift):   β_dis = -0.0542
+  2. Indirect (jumps): λ_dis = +0.004878
+     → marginal: d(λ)/d(bat_dis) = 0.00017492 at mean
+     → 100 MW discharge INCREASES λ by ~0.0175
+
+  Note: positive λ_dis indicates strategic battery positioning —
+  operators anticipate spike events and increase discharge pre-spike.
+  Lagged discharge is thus a PREDICTOR of jumps, not a suppressor.
+  The DIRECT channel (β_dis < 0) still shows causal price dampening;
+  the positive λ_dis reflects endogenous battery scheduling behaviour.
+
+MODEL FIT COMPARISON
+-----------------------------------------------------------------
+                            JD Model  OLS Baseline
+        Log-likelihood    -255652.03    -362582.59
+                   AIC     511348.06     725197.17
+                   BIC     511543.19     725339.09
+              n_params            22            16
+
+JUMP IDENTIFICATION vs TVECM R3
+-----------------------------------------------------------------
+  Jump frequency:       3.4%
+  TVECM R3 fraction:    10.0%
+  R3 obs → jumps:       15.3%
+  Jump obs → in R3:     45.2%
+
+INTERPRETATION
+-----------------------------------------------------------------
+The jump-diffusion model separates normal price dynamics (diffusion)
+from extreme price spikes (Poisson jumps).  Key findings:
+  λ_dis > 0: discharge predicts (but does not cause) jumps
+    Batteries position strategically before anticipated spikes
+    The causal dampening operates via β_dis < 0 (drift channel)
+  ✓ μ_J > 0: jumps are upward price spikes (as expected)
+  ✓ σ_J >> σ: jump variance dominates diffusion variance
+  ✓ Massive AIC/BIC improvement: mixture captures tail behaviour
+    that linear OLS (and TVECM) cannot represent

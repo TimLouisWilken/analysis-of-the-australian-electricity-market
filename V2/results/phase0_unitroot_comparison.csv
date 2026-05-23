@@ -1,0 +1,29 @@
+series,test,stat,p,lags_used,reject5,variant
+sa_price level,ADF,-22.5123,0.0,48,True,baseline
+Δsa_price,ADF,-58.3353,0.0,48,True,baseline
+sa_price level,PP,-98.8735,0.0,58,True,baseline
+Δsa_price,PP,-525.9516,0.0,58,True,baseline
+sa_price level,KPSS,0.295,0.01,92,True,baseline
+Δsa_price,KPSS,0.0122,0.1,1244,False,baseline
+vic_price level,ADF,-20.8607,0.0,48,True,baseline
+Δvic_price,ADF,-58.0101,0.0,48,True,baseline
+vic_price level,PP,-79.9987,0.0,58,True,baseline
+Δvic_price,PP,-413.7947,0.0,58,True,baseline
+vic_price level,KPSS,0.4038,0.01,94,True,baseline
+Δvic_price,KPSS,0.0144,0.1,1500,False,baseline
+sa_price level,ADF,-24.8055,0.0,46,True,filtered
+Δsa_price,ADF,-57.293,0.0,48,True,filtered
+sa_price level,PP,-99.9063,0.0,58,True,filtered
+Δsa_price,PP,-529.7465,0.0,58,True,filtered
+sa_price level,KPSS,0.0886,0.1,90,False,filtered
+Δsa_price,KPSS,0.0147,0.1,1531,False,filtered
+vic_price level,ADF,-23.3637,0.0,48,True,filtered
+Δvic_price,ADF,-56.8698,0.0,48,True,filtered
+vic_price level,PP,-81.6817,0.0,58,True,filtered
+Δvic_price,PP,-416.8362,0.0,58,True,filtered
+vic_price level,KPSS,0.1352,0.07,91,False,filtered
+Δvic_price,KPSS,0.0229,0.1,2330,False,filtered
+sa_price level,ADF_exog,-45.5471,0.005,16,True,exog_dummies
+Δsa_price,ADF_exog,-88.4969,0.005,16,True,exog_dummies
+vic_price level,ADF_exog,-40.6752,0.005,16,True,exog_dummies
+Δvic_price,ADF_exog,-95.3169,0.005,16,True,exog_dummies

@@ -1,0 +1,33 @@
+========================================================================
+PHASE 0b — THRESHOLD TEST: WITH vs WITHOUT DUMMIES
+========================================================================
+
+Specification : baseline (no dummies)
+  k (regressors)  : 10
+  Sup-F           : 1983.3482
+  Bootstrap p     : 0.0400**
+  CV 5%           : 1911.0444
+  γ_L / γ_U       : -45.8039 / 20.0215
+  AIC             : 723751.93
+  Var reduction   : 3.772%
+  Regimes (n1/n2/n3): 5,259 / 42,066 / 5,259
+
+Specification : parsimonious dummies
+  k (regressors)  : 18
+  Sup-F           : 2114.2677
+  Bootstrap p     : 0.0300**
+  CV 5%           : 1932.4482
+  γ_L / γ_U       : -45.8039 / 20.0215
+  AIC             : 723601.60
+  Var reduction   : 4.021%
+  Regimes (n1/n2/n3): 5,259 / 42,066 / 5,259
+
+Specification : with dummies
+  k (regressors)  : 38
+  Sup-F           : 2228.2463
+  Bootstrap p     : 0.0300**
+  CV 5%           : 2055.9350
+  γ_L / γ_U       : -45.8039 / 18.3337
+  AIC             : 723588.27
+  Var reduction   : 4.237%
+  Regimes (n1/n2/n3): 5,259 / 41,649 / 5,676

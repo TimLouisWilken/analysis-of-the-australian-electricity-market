@@ -3,42 +3,42 @@ PHASE 4 — IV/2SLS BATTERY EFFECT SUMMARY
 Primary instrument: SOC_norm = capacity-normalised 12h net charging (fraction), lagged 1
 Secondary (robustness): SOC_raw (MWh, lagged 1) — over-identified Sargan J-test
 New IV: Z_newcap = MWh commissioned in preceding 14 days, lagged 1
-Capacity: 285 → 1296 MWh (4.6× growth, 12 facilities)
-Relevance  corr(dis, SOC_norm): +0.1601
-Exclusion  corr(Δsa, SOC_norm): +0.0333
+Capacity: 271 → 1282 MWh (4.7× growth, 10 facilities)
+Relevance  corr(dis, SOC_norm): +0.1585
+Exclusion  corr(Δsa, SOC_norm): +0.0334
 
 First-stage partial F (endogenous var: battery_discharging_mw):
-  Regime 1: F(SOC_norm) = 53.32 (strong)  |  F(Z_newcap) = 0.06 (WEAK)  [nonzero obs = 159]
-  Regime 2: F(SOC_norm) = 200.07 (strong)  |  F(Z_newcap) = 22.34 (strong)  [nonzero obs = 2103]
-  Regime 3: F(SOC_norm) = 30.31 (strong)  |  F(Z_newcap) = 0.28 (WEAK)  [nonzero obs = 419]
+  Regime 1: F(SOC_norm) = 52.30 (strong)  |  F(Z_newcap) = 0.06 (WEAK)  [nonzero obs = 159]
+  Regime 2: F(SOC_norm) = 198.22 (strong)  |  F(Z_newcap) = 22.42 (strong)  [nonzero obs = 2103]
+  Regime 3: F(SOC_norm) = 30.20 (strong)  |  F(Z_newcap) = 0.28 (WEAK)  [nonzero obs = 419]
 
 Sargan J-test — model: SOC_norm + SOC_raw (H0: both instruments valid):
-  Regime 1: J = 2.9132  p = 0.0879  *  → INCONSISTENT ⚠
-  Regime 2: J = 44.2288  p = 0.0000  ***  → INCONSISTENT ⚠
-  Regime 3: J = 0.9831  p = 0.3214    → instruments consistent
+  Regime 1: J = 2.9532  p = 0.0857  *  → INCONSISTENT ⚠
+  Regime 2: J = 44.6625  p = 0.0000  ***  → INCONSISTENT ⚠
+  Regime 3: J = 0.9953  p = 0.3185    → instruments consistent
 
 Sargan J-test — model: SOC_norm + Z_newcap (H0: both instruments valid):
   (Z_newcap = MWh commissioned in preceding 14 days, lagged 1)
-  Regime 1: J = 0.1592  p = 0.6899    Z_newcap nonzero obs = 159  → instruments consistent
-  Regime 2: J = 1.8495  p = 0.1738    Z_newcap nonzero obs = 2103  → instruments consistent
-  Regime 3: J = 0.1359  p = 0.7124    Z_newcap nonzero obs = 419  → instruments consistent
+  Regime 1: J = 0.1606  p = 0.6886    Z_newcap nonzero obs = 159  → instruments consistent
+  Regime 2: J = 1.9357  p = 0.1641    Z_newcap nonzero obs = 2103  → instruments consistent
+  Regime 3: J = 0.1377  p = 0.7106    Z_newcap nonzero obs = 419  → instruments consistent
 
 Wu-Hausman endogeneity test:
-  Regime 1: t = -3.284  p = 0.0010  ***  → YES
-  Regime 2: t = -4.975  p = 0.0000  ***  → YES
-  Regime 3: t = 0.366  p = 0.7145    → no
+  Regime 1: t = -3.283  p = 0.0010  ***  → YES
+  Regime 2: t = -4.987  p = 0.0000  ***  → YES
+  Regime 3: t = 0.344  p = 0.7312    → no
 
 2SLS battery discharge coefficient (β_dis), SA equation:
-  Regime 1: β_dis = +1.7543  se = 0.2067  ***
-  Regime 2: β_dis = +0.4212  se = 0.0213  ***
-  Regime 3: β_dis = +0.7545  se = 0.3681  **
+  Regime 1: β_dis = +1.7744  se = 0.2079  ***
+  Regime 2: β_dis = +0.4275  se = 0.0215  ***
+  Regime 3: β_dis = +0.7764  se = 0.3688  **
 
 2SLS adjustment speed (α = ECT_lag), SA equation:
   Regime 1: α = +0.2121  
-  Regime 2: α = +0.3391  ***
-  Regime 3: α = -0.3494  ***
+  Regime 2: α = +0.3406  ***
+  Regime 3: α = -0.3493  ***
 
 Coefficient comparison: Phase 2 (OLS) → Phase 3 (lagged) → Phase 4 (IV)
-  Regime 1: +0.4446***  →  +0.0034  →  +1.7543***
-  Regime 2: +0.0360***  →  -0.0288  →  +0.4212***
-  Regime 3: +1.2008***  →  -0.1944  →  +0.7545**
+  Regime 1: +0.4446***  →  +0.0034  →  +1.7744***
+  Regime 2: +0.0360***  →  -0.0288  →  +0.4275***
+  Regime 3: +1.2008***  →  -0.1944  →  +0.7764**

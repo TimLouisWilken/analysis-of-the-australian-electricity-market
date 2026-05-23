@@ -1,0 +1,13 @@
+variable,transform,skewness,excess_kurt,JB_stat,JB_p,JB_reject5,note
+sa_price,levels,22.6549,632.5003,880938637.79,0.0,True,negative prices → log undefined; IHS/signed-log preferred
+sa_price,signed_log,-0.8793,-0.9271,8659.43,0.0,True,
+sa_price,IHS_theta1,-0.9055,-0.9353,9102.19,0.0,True,
+sa_price,IHS_theta10,-0.7207,-0.856,6157.42,0.0,True,
+sa_price,IHS_theta50,-0.1988,-0.1528,397.47,0.0,True,
+sa_price,first_diff,-3.8302,914.0877,1830623027.54,0.0,True,
+vic_price,levels,37.7957,1798.7431,7100774718.54,0.0,True,negative prices → log undefined; IHS/signed-log preferred
+vic_price,signed_log,-1.0614,-0.4781,10375.02,0.0,True,
+vic_price,IHS_theta1,-1.0996,-0.4592,11059.89,0.0,True,
+vic_price,IHS_theta10,-0.83,-0.5837,6784.94,0.0,True,
+vic_price,IHS_theta50,-0.2718,-0.3207,872.94,0.0,True,
+vic_price,first_diff,-21.306,3512.143,27027202932.32,0.0,True,

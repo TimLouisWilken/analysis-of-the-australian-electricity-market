@@ -1,4 +1,40 @@
+# --- Python ---
 __pycache__/
-.DS_Store
-.claude/
+*.py[cod]
 *.log
+.ipynb_checkpoints/
+
+# --- macOS ---
+.DS_Store
+
+# --- IDE / tooling ---
+.claude/
+.Rhistory
+.vscode/
+.idea/
+
+# --- Large raw API caches (re-generate via download_data.py) ---
+V2/data/raw/
+
+# --- Copyrighted PDFs ---
+Literature/
+V2/Literature/
+
+# --- Personal submission artefact (contains candidate code) ---
+Submission/
+
+# --- LaTeX build artefacts ---
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+
+# --- Old context snapshots / scratch ---
+V2/Context Versions/
+V2/PROJECT_CONTEXT copy*.md
