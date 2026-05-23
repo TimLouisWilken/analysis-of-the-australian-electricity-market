@@ -119,6 +119,71 @@ The hypothesis is not "batteries always reduce spot prices" — that is too coar
 
 ---
 
+## What this means for energy trading
+
+The estimated parameters are not just academic — most translate directly into trading signals, risk parameters, or pricing inputs.
+
+### 1. Statistical arbitrage on the SA–VIC spread
+
+The TVECM gives a closed-form mean-reversion model for the SA-minus-1.21×VIC spread:
+
+| Signal | Threshold | Half-life | Direction |
+|---|---|---|---|
+| ECT > +\$20 /MWh (spike regime) | enter short SA / long VIC | **0.8 h** | SA corrects (α = −0.349\*\*\*) |
+| ECT < −\$46 /MWh (discount regime) | enter long VIC | ~1.3 h | VIC corrects (α = +0.525\*\*\*) |
+| −\$46 ≤ ECT ≤ +\$20 (band) | no edge | — | drift only |
+
+The asymmetry matters: in the spike regime SA leads (you trade SA), in the discount regime VIC leads (you trade VIC). A naive symmetric-spread trader would lose on half of the signals.
+
+### 2. Battery dispatch as a leading indicator of spikes
+
+The jump-diffusion result λ_dis = +0.005\*\*\* says lagged battery discharge *predicts* spike events because operators position ahead of anticipated scarcity. Real-time SCADA discharge data is therefore a tradeable signal:
+
+> Mean jump probability λ_t = 3.7 % per 30-min interval (≈ 1.8 jumps/day).
+> A 100 MW lagged-discharge reading raises λ_t by ≈ 0.018 in absolute terms.
+
+This is exploitable both directionally (intraday cap contracts) and as a volatility signal (gamma-positioning ahead of likely spikes).
+
+### 3. Tail-risk modelling — VaR underestimates without jumps
+
+Standard mean-reverting GARCH VaR is wrong for SA. Two reasons documented in the project:
+
+- **IGARCH in Regimes 2 and 3** (α_G + β_G = 1.000): volatility shocks are permanent, not mean-reverting. Models assuming vol decay understate hold-time risk.
+- **Heavy tails** (Student-*t* ν ≈ 2.9 across all regimes): variance is near-undefined; Gaussian VaR misses the relevant tail entirely.
+- **Explicit jump component**: μ_J = +\$368 /MWh, σ_J = \$1,359 /MWh. A jump-aware VaR replaces the Gaussian tail with the mixture *N(drift, σ²) + λ · N(drift + μ_J, σ² + σ_J²)* — directly implementable from `V2/results/phase12_jd_params.csv`.
+
+### 4. Cap and swap contract pricing
+
+Cap contracts (payoff = max(P_t − strike, 0) over an interval) have fair value driven by the **spike-regime frequency × expected severity**. The analysis gives both:
+
+| Year | Spike freq. (R3) | Implication for \$300 cap |
+|---|---|---|
+| 2023 | 9.4 % | Higher expected payout |
+| 2024 | 7.2 % | −23 % vs 2023 |
+| 2025 | 5.0 % | **−46 % vs 2023** |
+
+A trader pricing 2026 SA caps using 2022 historical realisations systematically *overprices*. The capacity-interaction model provides a forward-looking decay parameter.
+
+### 5. Optimal BESS dispatch — quantified value of strategic positioning
+
+The capacity-interaction result is the most direct trading insight:
+
+> The OLS simultaneity-bias coefficient on contemporaneous discharge fell **94 %** between January 2023 (β_total = +4.76\*\*\*) and December 2025 (β_total = +0.29, n.s.) in the spike regime.
+
+Mechanism: as the fleet matured, dispatch shifted from reactive (discharge *because* prices spiked) to strategic (discharge *because* a spike was anticipated). The economic value of forecasting accuracy is therefore *increasing* over time even as raw spike-frequency falls — the operators left in the merchant-arbitrage game are exactly those with the best look-ahead.
+
+### 6. Merchant revenue compression — BESS investment thesis
+
+For new BESS entrants, the project quantifies the revenue headwind:
+
+- Spike-regime frequency: 9.4 % → 5.0 % in two years (−46 %).
+- August 2023 → August 2025 comparison: \$300+ intervals fell 112 → 19 (−83 %) despite installed capacity growing 2.4×.
+- SA–VIC correlation: 0.38 → 0.80 (inter-state arbitrage compressing).
+
+DCF models that linearly extrapolate 2022–2023 merchant revenues will overstate IRRs. The capacity-interaction coefficient gives an explicit decay rate for spike-arbitrage revenue per additional MWh installed.
+
+---
+
 ## Limitations
 
 Three caveats qualify the findings:
